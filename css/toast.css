@@ -1,0 +1,13 @@
+/* Toast: bottom centre, just above the tab bar (8px gap), one at a time */
+#toast-region{position:fixed;z-index:40;left:20px;right:20px;bottom:calc(var(--kb,0px) + env(safe-area-inset-bottom,0px) + 84px);display:flex;justify-content:center;pointer-events:none}
+.toast{position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;width:100%;max-width:480px;min-height:52px;padding:4px 6px 4px 14px;border-radius:16px;background:var(--fg);color:var(--bg);box-shadow:0 10px 30px rgba(0,0,0,.22);font-size:15px;font-weight:500;pointer-events:auto;touch-action:none}
+.toast.error{background:var(--danger)}
+.t-icon{flex:none;display:grid;place-items:center;width:20px;height:20px}
+.t-icon svg{width:20px;height:20px}
+.t-msg{flex:1;padding:8px 0;line-height:1.3}
+.t-act{flex:none;min-height:44px;padding:0 10px;border:0;border-radius:12px;background:none;font-weight:700;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.t-x{flex:none;display:grid;place-items:center;width:36px;height:40px;border:0;border-radius:12px;background:none;color:inherit;opacity:.7}
+.t-x svg{width:18px;height:18px}
+.t-act:active,.t-x:active{background:rgba(127,127,127,.3)}
+.t-bar{position:absolute;left:0;bottom:0;width:100%;height:3px;background:currentColor;opacity:.3;transform-origin:left}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

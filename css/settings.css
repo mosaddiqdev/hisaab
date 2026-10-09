@@ -1,0 +1,16 @@
+.set h1{margin-bottom:4px}
+.sec{margin:30px 0 10px;font-size:14px;font-weight:600;color:var(--muted-fg)}
+.set .hint{margin-top:8px}
+.stepper{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.stepper b{font-size:17px;font-weight:600}
+.group{border-block:1px solid var(--border)}
+.group>*+*{border-top:1px solid var(--border)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}
+.row.stack{flex-direction:column;align-items:stretch;gap:10px}
+.row b{font-weight:600}
+.row .hint{margin-top:2px}
+.rowbtn{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:56px;border:0;border-radius:10px;background:none;text-align:left;font-size:16px;color:var(--fg)}
+.rowbtn i{font-style:normal;font-size:20px;color:var(--muted-fg)}
+.rowbtn.danger{color:var(--danger);font-weight:600}
+.danger-zone{margin-top:40px}
+.foot{margin:20px 0 8px;text-align:center;font-size:13px;color:var(--muted-fg)}

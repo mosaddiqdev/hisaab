@@ -1,0 +1,31 @@
+/* First-run guide: three short screens in a pager; the last one asks for the daily price */
+.guide{position:fixed;z-index:30;inset:0;max-width:520px;margin:auto;display:flex;flex-direction:column;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 12px) 24px calc(var(--kb,0px) + env(safe-area-inset-bottom,0px) + 24px)}
+.g-top{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.g-top .off{visibility:hidden}
+.g-back{width:44px;height:44px;margin-left:-12px;border:0;background:none;font-size:30px;line-height:1;color:var(--muted-fg)}
+.g-pager{flex:1;min-height:0;margin:0 -24px;overflow:hidden;touch-action:pan-y}
+.g-track{display:flex;height:100%;transform:translateX(calc(var(--i,0) * -100%))}
+.g-step{flex:0 0 100%;min-width:0;display:flex;flex-direction:column;padding:0 24px}
+.g-art{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.g-art.none{display:none}
+.g-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%;pointer-events:none}
+.g-day{display:flex;flex-direction:column;align-items:center;gap:6px}
+.g-day small{font-size:12px;color:var(--muted-fg)}
+.g-dot{position:relative;display:grid;place-items:center;width:100%;max-width:44px;aspect-ratio:1;border-radius:50%;background:var(--muted);font-weight:500}
+.g-dot.miss{background:var(--danger-soft);color:var(--danger);font-weight:600}
+.g-dot.spec{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.g-dot::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid currentColor;opacity:0}
+.g-day em{height:12px;font-size:10px;font-style:normal;font-weight:600}
+.g-day.miss em{color:var(--danger)}
+.g-day.spec em{color:var(--accent)}
+.g-total{margin-top:18px;font:500 60px/1 var(--font-display);letter-spacing:-.03em;font-variation-settings:"SOFT" 100}
+.g-cap{font-size:13px;color:var(--muted-fg)}
+.g-copy{margin-top:auto;padding-bottom:16px}
+.g-copy h1{margin-bottom:10px}
+.g-copy .body{font-size:17px;color:var(--muted-fg)}
+.g-money{margin-top:22px}
+.dots{display:flex;gap:6px;margin:0 0 16px}
+.dots i{width:8px;height:8px;border-radius:4px;background:var(--border)}
+.dots i.on{width:22px;background:var(--accent)}
+.g-foot .btn{margin-top:0}
+@media (max-height:640px){.g-total{font-size:44px;margin-top:8px}.g-copy{padding-bottom:10px}.g-copy h1{font-size:26px}}

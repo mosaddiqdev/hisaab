@@ -1,0 +1,37 @@
+.page.cal{display:flex;flex-direction:column}
+.cal-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cal-top h1{margin:0;font-size:28px}
+.cal-nav{display:flex;gap:8px}
+
+/* Month total */
+.cal-sum{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px}
+.cal-total{display:flex;align-items:flex-end;font:500 40px/1.05 var(--font-display);font-variation-settings:"SOFT" 100;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.cal-total .cur{align-self:flex-start;margin:.2em 3px 0 0;font:500 .6em var(--font-ui);color:var(--muted-fg)}
+.cal-label{margin:0 0 3px 10px;font:400 14px var(--font-ui);letter-spacing:0;color:var(--muted-fg)}
+
+/* Grid */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);margin-top:14px;touch-action:pan-y}
+.cal-dow{padding:6px 0;text-align:center;font-size:12px;color:var(--muted-fg)}
+.cd{display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0;border:0;background:none;min-height:56px;color:var(--fg)}
+.cd .dot{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-weight:500}
+.cd em{height:12px;font-size:10px;font-style:normal;font-weight:600;color:var(--accent)}
+.cd.future .dot{color:var(--muted-fg)}
+.cd.special .dot{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.cd.missed .dot{background:var(--danger-soft);color:var(--danger);font-weight:600}
+.cd.missed em{color:var(--danger)}
+.cd.today .dot{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--fg)}
+.cd.sel .dot{background:var(--fg);color:var(--bg)}
+
+/* Legend + price link, bottom actions */
+.legend{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 16px;margin-top:10px;font-size:13px;color:var(--muted-fg)}
+.lg-items{display:flex;gap:16px}
+.lg{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:50%}
+.lg.special{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.lg.missed{background:var(--danger-soft);box-shadow:inset 0 0 0 1px var(--danger)}
+.inline{border:0;background:none;padding:6px 0;font-size:13px;color:var(--muted-fg)}
+.inline b{margin-left:4px;font-weight:600;color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+.inline.warn{font-weight:600;color:var(--accent)}
+.cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:20px}
+.cal-actions .btn{margin-top:0;min-height:48px}
+.cal-actions .btn:only-child{grid-column:1/-1}
+.cal .dock{margin-top:auto}

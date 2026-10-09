@@ -1,0 +1,6 @@
+# Kiro agent task files
+.agents/
+
+# OS
+.DS_Store
+Thumbs.db

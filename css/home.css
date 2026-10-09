@@ -1,0 +1,50 @@
+.page.home{display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between}
+.eyebrow{font-size:13px;color:var(--muted-fg)}
+.title{font:500 24px/1.2 var(--font-display);letter-spacing:-.01em;font-variation-settings:"SOFT" 100}
+
+/* Month total */
+.hero{margin:auto 0;padding:28px 0}
+.amount{display:flex;align-items:flex-start;gap:4px;margin:6px 0 10px;font-variant-numeric:tabular-nums}
+.amount .cur{margin-top:14px;font-size:26px;font-weight:500;color:var(--muted-fg)}
+.amount .num{font:500 76px/1 var(--font-display);letter-spacing:-.03em;font-variation-settings:"SOFT" 100;font-feature-settings:"lnum","tnum"}
+.amount.sm .num{font-size:60px}
+.amount.sm .cur{margin-top:10px;font-size:22px}
+.sub{font-size:14px;color:var(--muted-fg)}
+.sub+.sub{margin-top:2px}
+
+/* First run: ask for the price */
+.setup{margin:auto 0;padding-bottom:40px}
+.setup .sub{margin:6px 0 20px}
+.setup .input{min-height:64px;padding-left:40px;font-size:28px;font-weight:600}
+.setup .money span{left:16px;font-size:24px}
+
+/* This week */
+.sec-head{display:flex;align-items:center;justify-content:space-between}
+.sec-head h2{margin:0;font-size:15px;font-weight:600}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:24px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0;border:0;background:none;min-height:80px}
+.wd small{font-size:12px;color:var(--muted-fg)}
+.wd .dot{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--muted);font-weight:500}
+.wd em{font-style:normal;font-size:10px;font-weight:600;height:12px;color:var(--accent)}
+.wd.missed .dot{background:var(--danger-soft);color:var(--danger);font-weight:600}
+.wd.missed em{color:var(--danger)}
+.wd.special .dot{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.wd.today small{color:var(--fg);font-weight:600}
+.wd.today .dot{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--fg)}
+.wd.off{opacity:.35}
+.wd.off .dot{background:none}
+
+/* Today panel */
+.today-amt{white-space:nowrap;margin-left:8px;font-size:20px;font-weight:650;font-variant-numeric:tabular-nums}
+.today-amt.special{color:var(--accent)}
+.today-amt.missed{font-weight:600;color:var(--danger)}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:16px;background:var(--bg)}
+.seg button{position:relative;z-index:1;min-height:52px;border:0;border-radius:12px;background:none;font-weight:600;color:var(--muted-fg)}
+.seg button[aria-pressed=true]{color:var(--bg)}
+.seg .thumb{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 6px);border-radius:12px;background:var(--fg)}
+
+/* Short phones: keep Home on one screen */
+@media (max-height:700px){.hero{padding:16px 0}.amount .num{font-size:64px}.wd{min-height:72px}}
+@media (max-height:640px){.hero{padding:6px 0}.amount .num{font-size:56px}.amount.sm .num{font-size:50px}.wd{min-height:64px}.sec-head .link{min-height:36px}}
+@media (max-height:600px){#view{padding-top:calc(env(safe-area-inset-top,0px) + 10px)}.hero{padding:0}.dock{padding:10px 12px}.seg button{min-height:46px}}
