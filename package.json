@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "private": true,
+  "description": "Validation scripts for Hisaab i18n. Not a build system — the app has no build step.",
+  "scripts": {
+    "check-i18n": "node scripts/check-i18n.js"
+  }
+}

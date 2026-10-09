@@ -101,6 +101,12 @@ js/utils/
 
 ---
 
+## i18n
+
+Run `node scripts/check-i18n.js` to validate translations. Hindi and Assamese strings are DRAFTS — see `.agents/tasks/i18n/glossary.md` for reviewer notes.
+
+---
+
 ## TODO
 
 - [ ] Add real `screenshots` to the manifest — need one `form_factor: "narrow"` phone screenshot and one `"wide"` desktop screenshot. This unlocks the richer install dialog on Android/Chrome.
