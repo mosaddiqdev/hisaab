@@ -3,7 +3,7 @@ import { ym } from './utils/date.js';
 // All data lives on the device. Shape:
 // monthPrice: {"2026-10": 20}  days: {"2026-10-05": {price: 60} | {missed: true}}
 const KEY = 'hisaab-v1';
-const defaults = { monthPrice: {}, days: {}, trackMissed: true, milkman: '', guideSeen: false, weekStart: 0, startMonth: null };
+const defaults = { monthPrice: {}, days: {}, trackMissed: true, milkman: '', guideSeen: false, weekStart: 0, startMonth: null, lang: 'en', langPicked: false, billLang: 'app' };
 let saved = null;
 try { saved = JSON.parse(localStorage.getItem(KEY)); } catch {}
 export const state = { ...defaults, ...saved };

@@ -3,9 +3,9 @@ import { ui, refresh, openSheet, toast, haptic, HAPTIC, goTab } from './state.js
 import { dayInfo, monthSummary, monthPrice, hasOwnPrice, bulkSet, setDay, canPrev, canNext } from '../logic.js';
 import { ymd, daysInMonth, monthName } from '../utils/date.js';
 import { fmt, num } from '../utils/format.js';
+import { t, nPlural, arr, lang } from '../i18n.js';
 import { digits, animateRoll } from './roll.js';
 
-const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const keyOf = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
 // Current month: so far. Past month: final. Future month: planned.
@@ -16,6 +16,7 @@ function figures(y, m, now) {
 }
 
 export function render() {
+  const DOW = arr('dowShort');
   const [sy, sm] = state.startMonth.split('-').map(Number);
   if (ui.cursor < new Date(sy, sm - 1, 1)) ui.cursor = new Date(sy, sm - 1, 1);
   const now = new Date(), y = ui.cursor.getFullYear(), m = ui.cursor.getMonth(), key = keyOf(y, m), today = ymd(now);
@@ -24,35 +25,43 @@ export function render() {
   for (let i = 0; i < lead; i++) cells.push('<span></span>');
   for (let d = 1; d <= daysInMonth(y, m); d++) {
     const dt = new Date(y, m, d), k = ymd(dt), i = dayInfo(dt), on = sel && sel.has(k);
-    const note = i.kind === 'missed' ? ', no milk' : i.kind === 'special' ? `, special price ${i.amount} rupees` : '';
+    const mShort = arr('monthsShort')[m];
+    const note = i.kind === 'missed' ? `, ${t('noMilk').toLowerCase()}` : i.kind === 'special' ? `, ${t('special').toLowerCase()} ${t('setPrice').toLowerCase()} ${i.amount}` : '';
+    const ariaLabel = i.kind === 'missed'
+      ? t('ariaDayNoMilk', { day: d, month: mShort })
+      : i.kind === 'special'
+        ? t('ariaDaySpecial', { day: d, month: mShort, amount: i.amount })
+        : t('ariaDayNote', { day: d, month: mShort });
     cells.push(`<button class="cd ${i.kind} ${k === today ? 'today' : ''} ${k > today ? 'future' : ''} ${on ? 'sel' : ''} ${k === ui.changed ? 'pop' : ''}"
-      data-act="openDay" data-day="${k}" ${sel ? `aria-pressed="${!!on}"` : ''} aria-label="${d} ${monthName(m)}${note}">
+      data-act="openDay" data-day="${k}" ${sel ? `aria-pressed="${!!on}"` : ''} aria-label="${ariaLabel}">
       <span class="dot">${d}</span><em>${i.kind === 'special' ? fmt(i.amount) : i.kind === 'missed' ? '✕' : ''}</em></button>`);
   }
-  const label = future ? 'planned' : cur ? 'so far' : 'total';
+  const label = future ? t('calLabelPlanned') : cur ? t('calLabelSoFar') : t('calLabelTotal');
   const total = future ? full.total : s.total, str = num(total), prev = ui.calLast && ui.calLast.key === key ? ui.calLast.str : undefined;
   const swap = ui.calDir ? 'swap' : '';
   const price = hasOwnPrice(key)
-    ? `<button class="inline" data-act="editPrice" data-key="${key}">${fmt(monthPrice(key))}/day <b>Edit</b></button>`
-    : `<button class="inline warn" data-act="editPrice" data-key="${key}">Set price ›</button>`;
-  const count = k => (k ? ` · ${k}` : '');
+    ? `<button class="inline" data-act="editPrice" data-key="${key}">${fmt(monthPrice(key))}/day <b>${t('edit')}</b></button>`
+    : `<button class="inline warn" data-act="editPrice" data-key="${key}">${t('calSetPriceBtn')}</button>`;
+  const specialCount = full.special ? ` · ${full.special}` : '';
+  const missedCount = full.missed ? ` · ${full.missed}` : '';
+  const orderedDow = [...DOW.slice(ws), ...DOW.slice(0, ws)];
   return `<section class="page cal">
     <div class="cal-top"><h1 class="${swap}">${monthName(m)} ${y}</h1>
-      <div class="cal-nav"><button class="icon-btn" data-act="prev" aria-label="Previous month" ${canPrev(key) ? '' : 'disabled'}>‹</button>
-      <button class="icon-btn" data-act="next" aria-label="Next month" ${canNext(key) ? '' : 'disabled'}>›</button></div></div>
-    <div class="cal-sum"><p class="cal-total ${swap}" role="img" aria-label="${fmt(total)} ${label}"><span class="cur" aria-hidden="true">₹</span><span class="num" aria-hidden="true" data-key="${key}" data-str="${str}">${digits(str, prev)}</span><span class="cal-label">${label}</span></p>
-      ${cur ? '' : '<button class="pill" data-act="today">Today</button>'}</div>
-    <div class="cal-grid ${ui.calDir ? (ui.calDir > 0 ? 'to-next' : 'to-prev') : ''}">${[...DOW.slice(ws), ...DOW.slice(0, ws)].map(x => `<span class="cal-dow">${x}</span>`).join('')}${cells.join('')}</div>
-    <p class="legend"><span class="lg-items"><span><i class="lg special"></i>Special${count(full.special)}</span>
-      ${state.trackMissed ? `<span><i class="lg missed"></i>No milk${count(full.missed)}</span>` : ''}</span>${price}</p>
-    ${sel ? `<div class="dock ${ui.dockIn ? 'rise' : ''}"><div class="dock-top"><p><b class="sel-count">${n ? `${n} ${n === 1 ? 'day' : 'days'} selected` : 'Tap the days you want'}</b></p>
-        <button class="link" data-act="cancelSelect">Cancel</button></div>
+      <div class="cal-nav"><button class="icon-btn" data-act="prev" aria-label="${t('ariaPrevMonth')}" ${canPrev(key) ? '' : 'disabled'}>‹</button>
+      <button class="icon-btn" data-act="next" aria-label="${t('ariaNextMonth')}" ${canNext(key) ? '' : 'disabled'}>›</button></div></div>
+    <div class="cal-sum"><p class="cal-total ${swap}" role="img" aria-label="${t('ariaCalTotal', { amount: fmt(total), label })}"><span class="cur" aria-hidden="true">₹</span><span class="num" aria-hidden="true" data-key="${key}" data-str="${str}">${digits(str, prev)}</span><span class="cal-label">${label}</span></p>
+      ${cur ? '' : `<button class="pill" data-act="today">${t('calTodayPill')}</button>`}</div>
+    <div class="cal-grid ${ui.calDir ? (ui.calDir > 0 ? 'to-next' : 'to-prev') : ''}">${orderedDow.map(x => `<span class="cal-dow">${x}</span>`).join('')}${cells.join('')}</div>
+    <p class="legend"><span class="lg-items"><span><i class="lg special"></i>${t('legendSpecial')}${specialCount}</span>
+      ${state.trackMissed ? `<span><i class="lg missed"></i>${t('legendNoMilk')}${missedCount}</span>` : ''}</span>${price}</p>
+    ${sel ? `<div class="dock ${ui.dockIn ? 'rise' : ''}"><div class="dock-top"><p><b class="sel-count">${n ? nPlural('calSelectedDays', n) : t('calTapTheDays')}</b></p>
+        <button class="link" data-act="cancelSelect">${t('cancel')}</button></div>
       <div class="sheet-alt" style="--n:${state.trackMissed ? 3 : 2}">
-        ${state.trackMissed ? `<button class="btn btn-outline" data-act="selMissed" ${n ? '' : 'disabled'}>No milk</button>` : ''}
-        <button class="btn" data-act="selPrice" ${n ? '' : 'disabled'}>Set price</button>
-        <button class="btn btn-outline" data-act="selNormal" ${n ? '' : 'disabled'}>Normal</button></div></div>`
-    : `<div class="cal-actions"><button class="btn btn-outline" data-act="selectMode">Select days</button>
-      ${future ? '' : `<button class="btn btn-outline" data-act="share" data-y="${y}" data-m="${m}">Share bill</button>`}</div>`}
+        ${state.trackMissed ? `<button class="btn btn-outline" data-act="selMissed" ${n ? '' : 'disabled'}>${t('noMilk')}</button>` : ''}
+        <button class="btn" data-act="selPrice" ${n ? '' : 'disabled'}>${t('setPrice')}</button>
+        <button class="btn btn-outline" data-act="selNormal" ${n ? '' : 'disabled'}>${t('normal')}</button></div></div>`
+    : `<div class="cal-actions"><button class="btn btn-outline" data-act="selectMode">${t('calSelectDays')}</button>
+      ${future ? '' : `<button class="btn btn-outline" data-act="share" data-y="${y}" data-m="${m}">${t('calShareBill')}</button>`}</div>`}
   </section>`;
 }
 
@@ -63,19 +72,30 @@ export function enter() {
 }
 
 function billText(y, m) {
-  const now = new Date(), { cur, s } = figures(y, m, now), lim = ymd(cur ? now : new Date(y, m + 1, 0)), mon = monthName(m).slice(0, 3);
+  // Determine the language for the bill
+  const billLang = (state.billLang && state.billLang !== 'app') ? state.billLang : lang();
+  const bt = (key, vars) => t(key, vars, billLang);
+  const ba = key => arr(key, billLang);
+
+  const now = new Date(), { cur, s } = figures(y, m, now), lim = ymd(cur ? now : new Date(y, m + 1, 0));
+  const mon = ba('monthsShort')[m];
+  const fullMonthName = ba('monthsLong')[m];
   const missed = [], special = [];
   for (let d = 1; d <= daysInMonth(y, m) && ymd(new Date(y, m, d)) <= lim; d++) {
     const i = dayInfo(new Date(y, m, d));
     if (i.kind === 'missed') missed.push(d);
     if (i.kind === 'special') special.push(`${d} ${mon} ${fmt(i.amount)}`);
   }
-  const lines = [`Hisaab · ${monthName(m)} ${y}${cur ? ' (so far)' : ''}`];
-  if (state.milkman) lines.push(`Milkman: ${state.milkman}`);
-  lines.push(`Price: ${fmt(monthPrice(keyOf(y, m)))} per day`, `Delivered: ${s.days - s.missed} days`);
-  if (state.trackMissed && missed.length) lines.push(`No milk: ${missed.length} ${missed.length > 1 ? 'days' : 'day'} (${missed.join(', ')} ${mon})`);
-  if (special.length) lines.push(`Special price: ${special.join(', ')}`);
-  lines.push(`Total: ${fmt(s.total)}`);
+  const lines = [cur ? bt('billTitleSoFar', { appName: bt('appName'), month: fullMonthName, year: y }) : bt('billTitle', { appName: bt('appName'), month: fullMonthName, year: y })];
+  if (state.milkman) lines.push(bt('billMilkman', { name: state.milkman }));
+  lines.push(bt('billPrice', { amount: fmt(monthPrice(keyOf(y, m))) }));
+  lines.push(bt('billDelivered', { days: s.days - s.missed }));
+  if (state.trackMissed && missed.length) {
+    const noMilkStr = nPlural('billNoMilk', missed.length, billLang).replace('{dates}', missed.join(', ')).replace('{mon}', mon);
+    lines.push(noMilkStr);
+  }
+  if (special.length) lines.push(bt('billSpecial', { items: special.join(', ') }));
+  lines.push(bt('billTotal', { amount: fmt(s.total) }));
   return lines.join('\n');
 }
 
@@ -85,18 +105,19 @@ const go = n => {
   haptic(HAPTIC.SELECT);
   ui.cursor = new Date(ui.cursor.getFullYear(), ui.cursor.getMonth() + n, 1); ui.calDir = n; refresh();
 };
-const apply = (entry, what) => {
+const apply = (entry, toastKey) => {
   const keys = [...ui.select], before = keys.map(k => [k, state.days[k] ? { ...state.days[k] } : null]);
   bulkSet(keys, entry); save(); haptic(HAPTIC.DOUBLE); ui.select = null; refresh();
-  toast.success(`${keys.length} ${keys.length === 1 ? 'day' : 'days'} ${what}`, {
-    action: { label: 'Undo', onClick() { before.forEach(([k, v]) => setDay(k, v)); save(); haptic(HAPTIC.SELECT); refresh(); } }
+  const msg = nPlural(toastKey, keys.length);
+  toast.success(msg, {
+    action: { label: t('undo'), onClick() { before.forEach(([k, v]) => setDay(k, v)); save(); haptic(HAPTIC.SELECT); refresh(); } }
   });
 };
 // Selecting updates the circle and the panel in place, so the circle can animate instead of the whole grid redrawing.
 function syncDock() {
   const n = ui.select.size, dock = document.querySelector('.dock');
   if (!dock) return;
-  dock.querySelector('.sel-count').textContent = n ? `${n} ${n === 1 ? 'day' : 'days'} selected` : 'Tap the days you want';
+  dock.querySelector('.sel-count').textContent = n ? nPlural('calSelectedDays', n) : t('calTapTheDays');
   dock.querySelectorAll('.sheet-alt .btn').forEach(b => { b.disabled = !n; });
 }
 
@@ -114,15 +135,15 @@ export const actions = {
   },
   selectMode() { ui.select = new Set(); ui.dockIn = true; haptic(HAPTIC.SELECT); refresh(); },
   cancelSelect() { ui.select = null; haptic(HAPTIC.SELECT); refresh(); },
-  selMissed: () => apply({ missed: true }, 'marked no milk'),
-  selNormal: () => apply(null, 'back to normal'),
+  selMissed: () => apply({ missed: true }, 'toastMarkedNoMilk'),
+  selNormal: () => apply(null, 'toastBackToNormal'),
   selPrice() { if (ui.select.size) openSheet([...ui.select].sort()); },
   editPrice(el) { ui.settingsMonth = el.dataset.key; goTab('settings'); },
   async share(el) {
     const text = billText(+el.dataset.y, +el.dataset.m);
     try {
-      if (navigator.share) { await navigator.share({ title: 'Hisaab', text }); haptic(HAPTIC.SELECT); }
-      else { await navigator.clipboard.writeText(text); haptic(HAPTIC.SELECT); toast.success('Bill copied'); }
-    } catch (e) { if (e.name !== 'AbortError') toast.error('Could not share the bill'); }
+      if (navigator.share) { await navigator.share({ title: t('appName'), text }); haptic(HAPTIC.SELECT); }
+      else { await navigator.clipboard.writeText(text); haptic(HAPTIC.SELECT); toast.success(t('calBillCopied')); }
+    } catch (e) { if (e.name !== 'AbortError') toast.error(t('calCouldNotShare')); }
   }
 };

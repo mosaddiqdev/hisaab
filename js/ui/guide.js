@@ -2,32 +2,51 @@ import { state, save } from '../store.js';
 import { ui, refresh, reduced, haptic, HAPTIC, invalid, flash } from './state.js';
 import { hasOwnPrice, monthPrice } from '../logic.js';
 import { ym } from '../utils/date.js';
+import { normalizeDigits } from '../utils/format.js';
+import { t, arr, lang, setLang, detectLang } from '../i18n.js';
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 let root = null, list = [], at = 0;
 
 // A tiny non-interactive example week. marks: { dayIndex: { kind: 'miss' | 'spec', label, at } }
-const week = (marks = {}) => `<div class="g-week" aria-hidden="true">${DAYS.map((d, i) => {
-  const m = marks[i], k = m ? m.kind : '';
-  return `<div class="g-day ${k}" style="--k:${i}"><small>${d}</small><span class="g-dot ${k}" ${m ? `style="--at:${m.at}"` : ''}>${i + 1}</span><em>${m ? m.label : ''}</em></div>`;
-}).join('')}</div>`;
+const week = (marks = {}) => {
+  const days = arr('dowShort');
+  return `<div class="g-week" aria-hidden="true">${days.map((d, i) => {
+    const m = marks[i], k = m ? m.kind : '';
+    return `<div class="g-day ${k}" style="--k:${i}"><small>${d}</small><span class="g-dot ${k}" ${m ? `style="--at:${m.at}"` : ''}>${i + 1}</span><em>${m ? m.label : ''}</em></div>`;
+  }).join('')}</div>`;
+};
+
+// Language picker art — three large buttons, each language named in its own script
+const langPickerArt = () => `<div class="g-lang-pick" aria-hidden="true">
+  <button class="btn ${lang() === 'en' ? '' : 'btn-outline'}" data-act="guideLangEn">English</button>
+  <button class="btn ${lang() === 'hi' ? '' : 'btn-outline'}" data-act="guideLangHi">हिंदी</button>
+  <button class="btn ${lang() === 'as' ? '' : 'btn-outline'}" data-act="guideLangAs">অসমীয়া</button>
+</div>`;
 
 function steps() {
   const price = monthPrice(ym(new Date())), has = hasOwnPrice(ym(new Date()));
-  return [
-    { art: `${week()}<p class="g-total">₹280</p><p class="g-cap">Example: 7 days at ₹40</p>`,
-      title: 'Your milk bill, kept for you', body: 'Every day is counted at your price. On normal days there is nothing to do.', btn: 'Next' },
-    { art: `${week({ 2: { kind: 'miss', label: '✕', at: '.7s' }, 4: { kind: 'spec', label: '₹60', at: '1.3s' } })}<p class="g-cap">Example: tap a day to change it</p>`,
-      title: 'Something different?', body: 'Tap a day to mark that the milk did not come, or to give that day another price.', btn: 'Next' },
-    has ? { art: '', title: 'You are all set', body: 'Change the price any time in Settings. Tap a day in Calendar to change just that day.', btn: 'Got it' }
-        : { art: '', ask: price, title: 'What do you pay each day?', body: 'For one day of milk. You can change it for any month later.', btn: 'Start' }
+  const base = [
+    { art: `${week()}<p class="g-total">₹280</p><p class="g-cap">${t('guideExampleCaption')}</p>`,
+      title: t('guideTitle1'), body: t('guideBody1'), btn: t('next') },
+    { art: `${week({ 2: { kind: 'miss', label: '✕', at: '.7s' }, 4: { kind: 'spec', label: '₹60', at: '1.3s' } })}<p class="g-cap">${t('guideTapCaption')}</p>`,
+      title: t('guideTitle2'), body: t('guideBody2'), btn: t('next') },
+    has ? { art: '', title: t('guideTitle3set'), body: t('guideBody3set'), btn: t('gotIt') }
+        : { art: '', ask: price, title: t('guideTitle3ask'), body: t('guideBody3ask'), btn: t('start') }
   ];
+  // Language picker step is prepended for new users only
+  if (!state.langPicked) {
+    return [
+      { art: langPickerArt(), title: t('guideTitle1'), body: t('guideBody1'), btn: t('next'), isLangStep: true },
+      ...base
+    ];
+  }
+  return base;
 }
 
-const panel = (s, i) => `<section class="g-step${i ? '' : ' active'}" ${i ? 'inert' : ''} aria-label="Step ${i + 1} of ${list.length}">
+const panel = (s, i) => `<section class="g-step${i ? '' : ' active'}" ${i ? 'inert' : ''} aria-label="${t('guideStep', { n: i + 1, total: list.length })}">
   <div class="g-art ${s.art ? '' : 'none'}">${s.art}</div>
   <div class="g-copy"><h1>${s.title}</h1><p class="body">${s.body}</p>
-    ${s.ask !== undefined ? `<div class="money g-money"><span>₹</span><input id="g-price" class="input big" inputmode="decimal" enterkeyhint="done" data-enter="guideNext" aria-label="Milk price per day" value="${s.ask || ''}"></div>` : ''}</div></section>`;
+    ${s.ask !== undefined ? `<div class="money g-money"><span>₹</span><input id="g-price" class="input big" inputmode="decimal" enterkeyhint="done" data-enter="guideNext" aria-label="${t('milkPricePerDay')}" value="${s.ask || ''}"></div>` : ''}</div></section>`;
 
 // The guide lives in its own layer, built once: steps slide along the x-axis and everything else updates in place,
 // so nothing is rebuilt (and nothing typed is lost) when the app behind it redraws.
@@ -35,8 +54,8 @@ export function mount() {
   if (root) return;
   list = steps(); at = 0; ui.guideStep = 0;
   root = document.createElement('div');
-  root.className = 'guide'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', 'Welcome to Hisaab');
-  root.innerHTML = `<div class="g-top"><button class="g-back off" data-act="guideBack" aria-label="Back" tabindex="-1">‹</button><button class="link" data-act="guideSkip">Skip</button></div>
+  root.className = 'guide'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', t('guideAriaLabel'));
+  root.innerHTML = `<div class="g-top"><button class="g-back off" data-act="guideBack" aria-label="${t('ariaBack')}" tabindex="-1">‹</button><button class="link" data-act="guideSkip">${t('skip')}</button></div>
     <div class="g-pager"><div class="g-track" style="--i:0">${list.map(panel).join('')}</div></div>
     <div class="dots" aria-hidden="true">${list.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>
     <div class="g-foot"><button class="btn" data-act="guideNext">${list[0].btn}</button></div>`;
@@ -60,6 +79,21 @@ function sync() {
 function go(n) {
   at = Math.max(0, Math.min(list.length - 1, n)); sync();
   if (list[at].ask !== undefined) setTimeout(() => root?.querySelector('#g-price')?.focus(), 380); // after the slide settles
+}
+
+// After language is picked from guide: rebuild list with the new language's strings and re-render
+function pickLang(code) {
+  setLang(code);
+  state.lang = code; state.langPicked = true; save();
+  // Rebuild the guide content with the chosen language's strings
+  list = steps(); // state.langPicked is now true, so lang step is gone
+  // Re-render everything in the guide
+  const track = root.querySelector('.g-track'), dots = root.querySelector('.dots'), foot = root.querySelector('.g-foot');
+  track.innerHTML = list.map(panel).join('');
+  dots.innerHTML = list.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('');
+  foot.querySelector('[data-act=guideNext]').textContent = list[0].btn;
+  root.setAttribute('aria-label', t('guideAriaLabel'));
+  at = 0; sync();
 }
 
 // Drag the pager with a finger: it follows, then snaps to the next or previous step.
@@ -107,11 +141,14 @@ export const actions = {
     const s = list[at];
     if (at < list.length - 1) { haptic(HAPTIC.SELECT); return go(at + 1); }
     if (s.ask === undefined) return leave(false);
-    const input = document.getElementById('g-price'), v = parseFloat(input.value);
+    const input = document.getElementById('g-price'), v = parseFloat(normalizeDigits(input.value));
     if (!(v >= 0)) return invalid(input);
     state.monthPrice[ym(new Date())] = v; save(); haptic(HAPTIC.CONFIRM);
-    flash(root.querySelector('[data-act=guideNext]'), 'Saved', 450).then(() => leave(true));
+    flash(root.querySelector('[data-act=guideNext]'), t('flashSaved'), 450).then(() => leave(true));
   },
   guideBack() { if (at > 0) { haptic(HAPTIC.SELECT); go(at - 1); } },
-  guideSkip: () => { haptic(HAPTIC.SELECT); leave(false); }
+  guideSkip: () => { haptic(HAPTIC.SELECT); leave(false); },
+  guideLangEn() { pickLang('en'); },
+  guideLangHi() { pickLang('hi'); },
+  guideLangAs() { pickLang('as'); }
 };

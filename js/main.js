@@ -1,13 +1,14 @@
-import { state } from './store.js';
+import { state, save } from './store.js';
 import { ui, refresh, openSheet, haptic, HAPTIC, goTab, reduced } from './ui/state.js';
 import { icons } from './ui/icons.js';
+import { lang, setLang, detectLang, fontReady, t } from './i18n.js';
 import * as home from './ui/home.js';
 import * as calendar from './ui/calendar.js';
 import * as settings from './ui/settings.js';
 import * as sheet from './ui/sheet.js';
 import * as guide from './ui/guide.js';
 
-const TABS = [['home', 'Home', home], ['calendar', 'Calendar', calendar], ['settings', 'Settings', settings]];
+const TABS = [['home', home], ['calendar', calendar], ['settings', settings]];
 const view = document.getElementById('view'), tabs = document.getElementById('tabs'), overlay = document.getElementById('overlay-root');
 
 // One name, one handler: a duplicate would silently replace another screen's action.
@@ -19,8 +20,6 @@ for (const group of [home.actions, calendar.actions, settings.actions, sheet.act
   }
 }
 
-// Icons only; the active tab also shows its name (the tab itself is the highlighted pill and grows to fit it).
-tabs.innerHTML = TABS.map(([id, label]) => `<button class="tab" data-act="tab" data-tab="${id}" aria-label="${label}">${icons[id]}<span class="lbl">${label}</span></button>`).join('');
 function setNav() {
   tabs.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-current', b.dataset.tab === ui.tab ? 'page' : 'false'));
 }
@@ -28,7 +27,14 @@ function setNav() {
 document.addEventListener('navchange', setNav);
 let lastTab = ui.tab;
 function draw() {
-  const current = TABS.find(t => t[0] === ui.tab)[2];
+  // Rebuild tab labels each draw so they update when language changes
+  const tabKeyMap = { home: 'tabHome', calendar: 'tabCalendar', settings: 'tabSettings' };
+  tabs.innerHTML = TABS.map(([id]) => {
+    const label = t(tabKeyMap[id]);
+    return `<button class="tab" data-act="tab" data-tab="${id}" aria-label="${label}">${icons[id]}<span class="lbl">${label}</span></button>`;
+  }).join('');
+
+  const current = TABS.find(t => t[0] === ui.tab)[1];
   view.innerHTML = current.render();
   const switched = ui.tab !== lastTab;
   if (switched) { lastTab = ui.tab; view.scrollTop = 0; }
@@ -41,6 +47,11 @@ function draw() {
   ui.changed = null;
 }
 document.addEventListener('refresh', draw);
+
+// Listen for language changes: re-render the current screen with new language
+document.addEventListener('langchange', e => {
+  state.lang = e.detail.lang; save(); draw();
+});
 
 // ---- Taps
 let longPressed = false, moved = false;
@@ -112,10 +123,26 @@ if (window.visualViewport) {
   vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit);
 }
 
+// Boot: set language before first draw
+if (state.langPicked) {
+  setLang(state.lang || 'en');
+} else {
+  setLang(detectLang());
+}
+
 draw();
 // Launch: stay hidden for a moment (at most ~0.5s) so the fonts are in place and nothing jumps, then settle in with a gentle stagger.
 const html = document.documentElement;
-const fonts = document.fonts ? Promise.race([Promise.all([document.fonts.load('500 24px Fraunces'), document.fonts.load('400 16px Inter')]), new Promise(r => setTimeout(r, 450))]) : Promise.resolve();
+const fonts = document.fonts
+  ? Promise.race([
+      Promise.all([
+        document.fonts.load('500 24px Fraunces'),
+        document.fonts.load('400 16px Inter'),
+        fontReady(lang())
+      ]),
+      new Promise(r => setTimeout(r, 450))
+    ])
+  : Promise.resolve();
 fonts.catch(() => {}).then(() => {
   html.classList.remove('booting');
   if (!reduced()) { html.classList.add('boot'); setTimeout(() => html.classList.remove('boot'), 1100); }

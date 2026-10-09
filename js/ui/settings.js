@@ -2,10 +2,10 @@ import { state, save } from '../store.js';
 import { ui, refresh, toast, askConfirm, haptic, HAPTIC, invalid, flash } from './state.js';
 import { monthPrice, hasOwnPrice, canPrev, canNext } from '../logic.js';
 import { ym, monthName } from '../utils/date.js';
-import { fmt, esc } from '../utils/format.js';
+import { fmt, esc, normalizeDigits } from '../utils/format.js';
+import { t, nPlural, lang, setLang as i18nSetLang, arr } from '../i18n.js';
 import { mount as openGuide } from './guide.js';
 
-const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 const monthKey = () => (ui.settingsMonth && ui.settingsMonth >= state.startMonth ? ui.settingsMonth : ym(new Date()));
 const shift = (key, n) => { const [y, m] = key.split('-').map(Number); return ym(new Date(y, m - 1 + n, 1)); };
 
@@ -26,40 +26,61 @@ function pick(el) {
 export function render() {
   const key = monthKey(), [y, mo] = key.split('-').map(Number), own = hasOwnPrice(key), eff = monthPrice(key), mn = monthName(mo - 1);
   const slide = ui.setDir ? (ui.setDir > 0 ? 'slide-next' : 'slide-prev') : '';
-  return `<section class="page set"><h1>Settings</h1>
+  const currentLang = lang();
+  const billLangVal = state.billLang || 'app';
 
-    <h2 class="sec">Milkman</h2>
-    <label class="field" style="margin-top:0">Name<input id="set-name" class="input" value="${esc(state.milkman)}" placeholder="Optional" data-change="saveName"></label>
-    <p class="hint">Used in the bill you share.</p>
+  // Language buttons: each language's name in its own script
+  const langButtons = ['en', 'hi', 'as'].map(code => {
+    const names = { en: 'English', hi: 'हिंदी', as: 'অসমীয়া' };
+    return `<button class="btn ${currentLang === code ? '' : 'btn-outline'}" data-act="setLang" data-v="${code}" aria-pressed="${currentLang === code}">${names[code]}</button>`;
+  }).join('');
 
-    <h2 class="sec">Price per day</h2>
-    <div class="stepper"><button class="icon-btn" data-act="setPrev" aria-label="Previous month" ${canPrev(key) ? '' : 'disabled'}>‹</button><b class="${slide}">${mn} ${y}</b>
-      <button class="icon-btn" data-act="setNext" aria-label="Next month" ${canNext(key) ? '' : 'disabled'}>›</button></div>
+  const billLangOptions = [
+    `<option value="app" ${billLangVal === 'app' ? 'selected' : ''}>Same as app language</option>`,
+    `<option value="en" ${billLangVal === 'en' ? 'selected' : ''}>English</option>`,
+    `<option value="hi" ${billLangVal === 'hi' ? 'selected' : ''}>हिंदी</option>`,
+    `<option value="as" ${billLangVal === 'as' ? 'selected' : ''}>অসমীয়া</option>`
+  ].join('');
+
+  return `<section class="page set"><h1>${t('settingsTitle')}</h1>
+
+    <h2 class="sec">Language / भाषा / ভাষা</h2>
+    <div class="sheet-alt" style="--n:3">${langButtons}</div>
+    <label class="field" style="margin-top:8px">Bill language
+      <select class="input" data-change="setBillLang">${billLangOptions}</select></label>
+
+    <h2 class="sec">${t('settingsMilkman')}</h2>
+    <label class="field" style="margin-top:0">${t('settingsNameLabel')}<input id="set-name" class="input" value="${esc(state.milkman)}" placeholder="${t('settingsNamePlaceholder')}" data-change="saveName"></label>
+    <p class="hint">${t('settingsNameHint')}</p>
+
+    <h2 class="sec">${t('settingsPrice')}</h2>
+    <div class="stepper"><button class="icon-btn" data-act="setPrev" aria-label="${t('ariaPrevMonth')}" ${canPrev(key) ? '' : 'disabled'}>‹</button><b class="${slide}">${mn} ${y}</b>
+      <button class="icon-btn" data-act="setNext" aria-label="${t('ariaNextMonth')}" ${canNext(key) ? '' : 'disabled'}>›</button></div>
     <div class="money ${slide}"><span>₹</span><input id="set-price" class="input big" inputmode="decimal" enterkeyhint="done" data-enter="saveMonthPrice"
-      aria-label="Price per day for ${mn}" value="${own ? state.monthPrice[key] : ''}" placeholder="${eff || ''}"></div>
-    <button class="btn" data-act="saveMonthPrice">Save price</button>
-    <p class="hint">${own ? `Used for every day of ${mn}.` : eff > 0 ? `Not set for ${mn}, so it uses ${fmt(eff)} from an earlier month.` : 'Not set yet.'}</p>
+      aria-label="${t('settingsPriceAriaLabel', { month: mn })}" value="${own ? state.monthPrice[key] : ''}" placeholder="${eff || ''}"></div>
+    <button class="btn" data-act="saveMonthPrice">${t('savePrice')}</button>
+    <p class="hint">${own ? t('settingsPriceUsedFor', { month: mn }) : eff > 0 ? t('settingsPriceNotSet', { month: mn, amount: fmt(eff) }) : t('settingsPriceNone')}</p>
 
-    <h2 class="sec">Tracking</h2>
+    <h2 class="sec">${t('settingsTracking')}</h2>
     <div class="group">
-      <div class="row"><div><b>Track days milk did not come</b><p class="hint">Adds a "did not come" option</p></div>
-        <button class="switch" role="switch" aria-checked="${state.trackMissed}" aria-label="Track days milk did not come" data-act="toggleMissed"></button></div>
-      <div class="row stack"><b>Calendar week starts on</b>${opts('setWeek', [[0, 'Sunday'], [1, 'Monday']], state.weekStart || 0)}</div>
+      <div class="row"><div><b>${t('settingsTrackMissedLabel')}</b><p class="hint">${t('settingsTrackMissedHint')}</p></div>
+        <button class="switch" role="switch" aria-checked="${state.trackMissed}" aria-label="${t('settingsTrackMissedLabel')}" data-act="toggleMissed"></button></div>
+      <div class="row stack"><b>${t('settingsWeekStartLabel')}</b>${opts('setWeek', [[0, t('settingsWeekSunday')], [1, t('settingsWeekMonday')]], state.weekStart || 0)}</div>
     </div>
 
-    <h2 class="sec">Your data</h2>
+    <h2 class="sec">${t('settingsYourData')}</h2>
     <div class="group">
-      <button class="rowbtn" data-act="backup"><span>Download a backup</span><i>›</i></button>
-      <button class="rowbtn" data-act="pickFile"><span>Restore from a backup</span><i>›</i></button>
+      <button class="rowbtn" data-act="backup"><span>${t('settingsBackupDownload')}</span><i>›</i></button>
+      <button class="rowbtn" data-act="pickFile"><span>${t('settingsBackupRestore')}</span><i>›</i></button>
     </div>
     <input id="restore-file" type="file" accept=".json,application/json" hidden data-change="restoreFile">
-    <p class="hint">Everything is saved only on this phone. Download a backup now and then.</p>
+    <p class="hint">${t('settingsBackupHint')}</p>
 
-    <h2 class="sec">Help</h2>
-    <div class="group"><button class="rowbtn" data-act="replayGuide"><span>Show the guide again</span><i>›</i></button></div>
+    <h2 class="sec">${t('settingsHelp')}</h2>
+    <div class="group"><button class="rowbtn" data-act="replayGuide"><span>${t('settingsShowGuide')}</span><i>›</i></button></div>
 
-    <div class="group danger-zone"><button class="rowbtn danger" data-act="askErase"><span>Erase all data</span></button></div>
-    <p class="foot">Hisaab · works offline</p></section>`;
+    <div class="group danger-zone"><button class="rowbtn danger" data-act="askErase"><span>${t('settingsEraseData')}</span></button></div>
+    <p class="foot">${t('settingsFooter')}</p></section>`;
 }
 
 export function enter() { ui.setDir = 0; }
@@ -82,13 +103,18 @@ function parseBackup(text) {
 }
 
 export const actions = {
+  setLang(el) {
+    const code = el.dataset.v;
+    i18nSetLang(code);
+    state.lang = code; state.langPicked = true; save();
+  },
   setPrev() { if (canPrev(monthKey())) { haptic(HAPTIC.SELECT); ui.settingsMonth = shift(monthKey(), -1); ui.setDir = -1; refresh(); } },
   setNext() { if (canNext(monthKey())) { haptic(HAPTIC.SELECT); ui.settingsMonth = shift(monthKey(), 1); ui.setDir = 1; refresh(); } },
   saveMonthPrice() {
-    const input = document.getElementById('set-price'), v = parseFloat(input.value);
+    const input = document.getElementById('set-price'), v = parseFloat(normalizeDigits(input.value));
     if (!(v >= 0)) return invalid(input);
     state.monthPrice[monthKey()] = v; save(); haptic(HAPTIC.CONFIRM);
-    flash(document.querySelector('[data-act=saveMonthPrice]'), 'Saved').then(refresh); // the drawn checkmark is the confirmation
+    flash(document.querySelector('[data-act=saveMonthPrice]'), t('flashSaved')).then(refresh); // the drawn checkmark is the confirmation
   },
   toggleMissed(el) { state.trackMissed = !state.trackMissed; save(); el.setAttribute('aria-checked', state.trackMissed); haptic(HAPTIC.SELECT); },
   setWeek(el) { state.weekStart = +el.dataset.v; save(); pick(el); },
@@ -98,26 +124,31 @@ export const actions = {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'hisaab', ...state }, null, 2)], { type: 'application/json' }));
     a.download = `hisaab-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(a.href);
-    haptic(HAPTIC.CONFIRM); toast.success('Backup downloaded');
+    haptic(HAPTIC.CONFIRM); toast.success(t('toastBackupDownloaded'));
   },
   askErase() {
-    askConfirm({ title: 'Erase all data?', body: 'This deletes every price and every day you edited from this phone. It cannot be undone, so download a backup first if you are not sure.',
-      ok: 'Erase everything', danger: true, run() {
+    askConfirm({ title: t('confirmEraseTitle'), body: t('confirmEraseBody'),
+      ok: t('confirmEraseOk'), danger: true, run() {
+        // CRITICAL: lang/langPicked/billLang are intentionally NOT in this Object.assign — they survive erase.
         Object.assign(state, { monthPrice: {}, days: {}, trackMissed: true, milkman: '', guideSeen: false, weekStart: 0, startMonth: ym(new Date()) });
-        save(); ui.tab = 'home'; ui.settingsMonth = null; ui.lastNum = ui.lastSeg = ui.calLast = undefined; toast.success('All data erased'); setTimeout(openGuide, 260);
+        save(); ui.tab = 'home'; ui.settingsMonth = null; ui.lastNum = ui.lastSeg = ui.calLast = undefined; toast.success(t('toastAllDataErased')); setTimeout(openGuide, 260);
       } });
   }
 };
 
 export const changes = {
   saveName(el) { state.milkman = el.value.trim(); save(); },
+  setBillLang(el) { state.billLang = el.value; save(); },
   async restoreFile(el) {
     const file = el.files[0]; el.value = '';
     if (!file) return;
     const data = parseBackup(await file.text());
-    if (!data) return toast.error('That is not a Hisaab backup');
-    askConfirm({ title: 'Restore this backup?', ok: 'Restore',
-      body: `It has ${plural(Object.keys(data.monthPrice).length, 'monthly price')} and ${plural(Object.keys(data.days).length, 'edited day')}. This replaces what is on this phone now.`,
-      run() { haptic(HAPTIC.DOUBLE); Object.assign(state, data, { guideSeen: true }); save(); ui.lastNum = ui.lastSeg = ui.calLast = undefined; toast.success('Backup restored'); } });
+    if (!data) return toast.error(t('toastNotABackup'));
+    const pricesStr = nPlural('confirmRestorePrices', Object.keys(data.monthPrice).length);
+    const daysStr = nPlural('confirmRestoreDays', Object.keys(data.days).length);
+    askConfirm({ title: t('confirmRestoreTitle'), ok: t('confirmRestoreOk'),
+      body: t('confirmRestoreBody', { prices: pricesStr, days: daysStr }),
+      // CRITICAL: lang/langPicked/billLang are intentionally NOT passed in data — they survive restore.
+      run() { haptic(HAPTIC.DOUBLE); Object.assign(state, data, { guideSeen: true }); save(); ui.lastNum = ui.lastSeg = ui.calLast = undefined; toast.success(t('toastBackupRestored')); } });
   }
 };
