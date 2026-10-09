@@ -1,0 +1,82 @@
+/*
+ * i18n.css — Indic typography overrides for Hindi (hi) and Assamese (as)
+ *
+ * Rules activate automatically via :lang() when html[lang=hi] or html[lang=as]
+ * is set by i18n.js. Latin font (Inter) comes first in every stack so digits
+ * and ₹ are always rendered by Inter, not the Indic font.
+ */
+
+/* ── Font stacks ─────────────────────────────────────────────────────────── */
+
+html:lang(hi) {
+  --font-ui: 'Inter', 'Hind', 'Noto Sans Devanagari', system-ui, sans-serif;
+}
+
+html:lang(as) {
+  --font-ui: 'Inter', 'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;
+}
+
+/* ── Body text ───────────────────────────────────────────────────────────── */
+
+:lang(hi) body,
+:lang(as) body {
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Headings ────────────────────────────────────────────────────────────── */
+
+/* letter-spacing: 0 is critical — negative tracking breaks Indic conjuncts */
+:lang(hi) h1,
+:lang(as) h1 {
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+:lang(hi) h2,
+:lang(as) h2 {
+  letter-spacing: 0;
+}
+
+/* Section headings in settings also use tight tracking — reset them */
+:lang(hi) .sec,
+:lang(as) .sec {
+  letter-spacing: 0;
+}
+
+/* ── Small text ──────────────────────────────────────────────────────────── */
+
+/* Bump from 12px to 13px — Indic scripts are harder to read at very small sizes */
+:lang(hi) .muted,
+:lang(hi) .hint,
+:lang(as) .muted,
+:lang(as) .hint {
+  font-size: 13px;
+}
+
+/* ── Tab bar labels ──────────────────────────────────────────────────────── */
+
+/* Indic tab labels can be longer than English; allow wrapping instead of clipping */
+:lang(hi) .tab .lbl,
+:lang(as) .tab .lbl {
+  max-width: 120px;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+/* Allow Indic button text to wrap rather than overflow */
+:lang(hi) .btn,
+:lang(as) .btn {
+  white-space: normal;
+  min-height: 56px;
+}
+
+/* ── Calendar day-of-week header ─────────────────────────────────────────── */
+
+/* 3-char Indic abbreviations are wider than Latin 2-char; reduce font size to fit */
+:lang(hi) .cal-dow,
+:lang(as) .cal-dow {
+  font-size: 11px;
+}
