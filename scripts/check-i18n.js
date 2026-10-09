@@ -245,9 +245,10 @@ const UI_FILES = [
 
 // Collect all referenced keys from t('key') and arr('key') patterns
 const referencedKeys = new Set();
-// Also match nPlural('key', ...) pattern
-const T_PATTERN = /\bt\s*\(\s*['"](\w+)['"]/g;
-const ARR_PATTERN = /\barr\s*\(\s*['"](\w+)['"]/g;
+// Also match nPlural('key', ...) and bt('key', ...) patterns
+// bt() is the local alias for t() used inside billText() in calendar.js
+const T_PATTERN = /\b(?:t|bt)\s*\(\s*['"](\w+)['"]/g;
+const ARR_PATTERN = /\b(?:arr|ba)\s*\(\s*['"](\w+)['"]/g;
 const NPLURAL_PATTERN = /\bnPlural\s*\(\s*['"](\w+)['"]/g;
 
 for (const filePath of UI_FILES) {
@@ -277,6 +278,12 @@ for (const k of stemKeys) referencedKeys.add(k);
 const KNOWN_IMPLICIT = new Set([
   'appName',          // substituted as {appName} inside strings
   'monthsLong', 'monthsShort', 'dowLong', 'dowShort', // used via arr()
+  // Tab keys are looked up dynamically via tabKeyMap[id] in main.js
+  'tabHome', 'tabCalendar', 'tabSettings',
+  // These keys are reserved for future use / accessibility and defined but not yet called directly
+  'back', 'today', 'dismiss', 'ariaSkip', 'calEditPriceBtn',
+  // confirmCancel is used in confirmHtml() via t('cancel') (same label, but key kept for future)
+  'confirmCancel',
 ]);
 
 let unusedCount = 0;
