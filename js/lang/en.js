@@ -67,7 +67,7 @@ export const en = {
   calBillCopied: 'Bill copied',
   calCouldNotShare: 'Could not share the bill',
   calSetPriceBtn: 'Set price ›',
-  calEditPriceBtn: '{amount}/day Edit',
+  calEditPriceBtn: 'Edit · {amount}/day',
 
   // ── Calendar — aria-labels ────────────────────────────────────────────────
   ariaCalTotal: '{amount} {label}',
@@ -177,7 +177,7 @@ export const en = {
   guideLangPickerTitle: 'Choose your language',
   guideLangPickerBody: 'You can change this later in Settings.',
 
-  guideTitle1: 'Your milk bill, kept for you',
+  guideTitle1: 'Keep track of your milk bill',
   guideBody1: 'Every day is counted at your price. On normal days there is nothing to do.',
   guideTitle2: 'Something different?',
   guideBody2: 'Tap a day to mark that the milk did not come, or to give that day another price.',

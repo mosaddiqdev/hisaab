@@ -15,9 +15,9 @@ export const hi = {
   save: 'सेव करें',
   cancel: 'रद्द करें',
   next: 'आगे',
-  back: 'पीछे',
+  back: 'वापस',
   skip: 'छोड़ें',
-  gotIt: 'समझ गया',
+  gotIt: 'ठीक है',
   start: 'शुरू करें',
   today: 'आज',
   noMilk: 'दूध नहीं',
@@ -33,10 +33,10 @@ export const hi = {
   // ── Home screen ───────────────────────────────────────────────────────────
   spentInMonth: '{month} में खर्च',
   estimatedByMonthEnd: 'महीने के अंत तक लगभग {amount} खर्च होगा',
-  specialDays_one: '{n} विशेष दाम दिन',   // REVIEW: same as _other — confirm if singular needs a different form, e.g. '{n} विशेष दाम का दिन'
-  specialDays_other: '{n} विशेष दाम दिन',
-  missedDays_one: '{n} छूटा दिन',
-  missedDays_other: '{n} छूटे दिन',
+  specialDays_one: '{n} दिन अलग दाम पर',
+  specialDays_other: '{n} दिन अलग दाम पर',
+  missedDays_one: '{n} दिन दूध नहीं आया',
+  missedDays_other: '{n} दिन दूध नहीं आया',
   thisWeek: 'इस हफ्ते',
   monthLink: 'महीना ›',
   milkCame: 'दूध आया',
@@ -52,7 +52,7 @@ export const hi = {
   setupSetDifferent: 'आप हर महीने अलग दाम सेट कर सकते हैं।',
 
   // ── Home — aria-labels ────────────────────────────────────────────────────
-  milkPricePerDay: 'दूध का प्रतिदिन दाम',
+  milkPricePerDay: 'दूध का रोज़ का दाम',
   todaysMilk: 'आज का दूध',
 
   // ── Calendar screen ───────────────────────────────────────────────────────
@@ -62,18 +62,18 @@ export const hi = {
   calTodayPill: 'आज',
   calSelectDays: 'दिन चुनें',
   calShareBill: 'बिल शेयर करें',
-  calSelectedDays_one: '{n} दिन चुना गया',
-  calSelectedDays_other: '{n} दिन चुने गए',
+  calSelectedDays_one: '{n} दिन चयनित',
+  calSelectedDays_other: '{n} दिन चयनित',
   calTapTheDays: 'जो दिन चाहें उन पर टैप करें',
   calBillCopied: 'बिल कॉपी हो गया',
   calCouldNotShare: 'बिल शेयर नहीं हो सका',
   calSetPriceBtn: 'दाम सेट करें ›',
-  calEditPriceBtn: '{amount}/दिन बदलें',
+  calEditPriceBtn: 'दाम बदलें · {amount}/दिन',
 
   // ── Calendar — aria-labels ────────────────────────────────────────────────
   ariaCalTotal: '{amount} {label}',
   ariaDayNote: '{day} {month}',
-  ariaDayNoMilk: '{day} {month}, दूध नहीं',
+  ariaDayNoMilk: '{day} {month}, दूध नहीं आया',
   ariaDaySpecial: '{day} {month}, विशेष दाम {amount} रुपये',
   ariaPrevMonth: 'पिछला महीना',
   ariaNextMonth: 'अगला महीना',
@@ -87,9 +87,9 @@ export const hi = {
   billTitleSoFar: '{appName} · {month} {year} (अब तक)',
   billMilkman: 'दूधवाला: {name}',
   billPrice: 'दाम: {amount} प्रतिदिन',
-  billDelivered: 'डिलीवरी: {days} दिन',
-  billNoMilk_one: 'दूध नहीं: {n} दिन ({dates} {mon})',
-  billNoMilk_other: 'दूध नहीं: {n} दिन ({dates} {mon})',
+  billDelivered: 'दूध आने के दिन: {days}',
+  billNoMilk_one: 'दूध नहीं आया: {n} दिन ({dates} {mon})',
+  billNoMilk_other: 'दूध नहीं आया: {n} दिन ({dates} {mon})',
   billSpecial: 'विशेष दाम: {items}',
   billTotal: 'कुल: {amount}',
 
@@ -104,16 +104,16 @@ export const hi = {
   sheetMilkWontCome: 'दूध नहीं आएगा',
   sheetPriceForEachDay: 'हर दिन का दाम',
   sheetPriceForThisDay: 'सिर्फ इस दिन का दाम',
-  sheetDaysSelected_one: '{n} दिन चुना गया',
-  sheetDaysSelected_other: '{n} दिन चुने गए',
+  sheetDaysSelected_one: '{n} दिन चयनित',
+  sheetDaysSelected_other: '{n} दिन चयनित',
 
   // ── Sheet — toast messages ─────────────────────────────────────────────────
-  toastMarkedNoMilk_one: '{n} दिन दूध नहीं पर मार्क हुआ',
-  toastMarkedNoMilk_other: '{n} दिन दूध नहीं पर मार्क हुए',
-  toastSetToPrice_one: '{n} दिन का दाम {amount} हुआ',
-  toastSetToPrice_other: '{n} दिनों का दाम {amount} हुआ',
-  toastBackToNormal_one: '{n} दिन सामान्य पर वापस',
-  toastBackToNormal_other: '{n} दिन सामान्य पर वापस',
+  toastMarkedNoMilk_one: '{n} दिन के लिए "दूध नहीं आया" दर्ज किया गया',
+  toastMarkedNoMilk_other: '{n} दिन के लिए "दूध नहीं आया" दर्ज किया गया',
+  toastSetToPrice_one: '{n} दिन के लिए दाम {amount} तय किया गया',
+  toastSetToPrice_other: '{n} दिन के लिए दाम {amount} तय किया गया',
+  toastBackToNormal_one: '{n} दिन का दाम फिर से सामान्य कर दिया गया',
+  toastBackToNormal_other: '{n} दिन का दाम फिर से सामान्य कर दिया गया',
 
   // ── Sheet — aria-labels ───────────────────────────────────────────────────
   ariaEditDays_one: '{n} दिन बदलें',
@@ -129,25 +129,25 @@ export const hi = {
 
   settingsTitle: 'सेटिंग्स',
   settingsMilkman: 'दूधवाला',
-  settingsPrice: 'प्रतिदिन दाम',
+  settingsPrice: 'रोज़ का दाम',
   settingsTracking: 'ट्रैकिंग',
   settingsYourData: 'आपका डेटा',
   settingsHelp: 'मदद',
   settingsNameLabel: 'नाम',
   settingsNamePlaceholder: 'वैकल्पिक',
-  settingsNameHint: 'जो बिल आप शेयर करते हैं उसमें दिखेगा।',
+  settingsNameHint: 'यह नाम आपके शेयर किए गए बिल में दिखेगा।',
   settingsPriceAriaLabel: '{month} के लिए प्रतिदिन दाम',
   settingsPriceUsedFor: '{month} के हर दिन के लिए यही दाम लगेगा।',
   settingsPriceNotSet: '{month} के लिए दाम नहीं है, इसलिए पहले के महीने का {amount} लग रहा है।',
-  settingsPriceNone: 'अभी तक सेट नहीं किया।',
+  settingsPriceNone: 'अभी तक तय नहीं किया गया है।',
   settingsTrackMissedLabel: 'दूध न आने वाले दिन ट्रैक करें',
   settingsTrackMissedHint: '"नहीं आया" का विकल्प जुड़ जाएगा',
-  settingsWeekStartLabel: 'कैलेंडर हफ्ते की शुरुआत',
+  settingsWeekStartLabel: 'कैलेंडर सप्ताह की शुरुआत',
   settingsWeekSunday: 'रविवार',
   settingsWeekMonday: 'सोमवार',
   settingsBackupDownload: 'बैकअप डाउनलोड करें',
   settingsBackupRestore: 'बैकअप से रिस्टोर करें',
-  settingsBackupHint: 'सब कुछ केवल इस फोन पर सेव है। समय-समय पर बैकअप डाउनलोड करते रहें।',
+  settingsBackupHint: 'सारा डेटा सिर्फ़ इसी फ़ोन में सेव होता है। समय-समय पर बैकअप डाउनलोड करते रहें।',
   settingsShowGuide: 'गाइड फिर से देखें',
   settingsEraseData: 'सारा डेटा मिटाएं',
   settingsFooter: '{appName} · ऑफलाइन काम करता है',
@@ -160,47 +160,47 @@ export const hi = {
 
   // ── Settings — confirm dialogs ────────────────────────────────────────────
   confirmEraseTitle: 'सारा डेटा मिटाएं?',
-  confirmEraseBody: 'इससे आपके इस फोन से हर दाम और हर बदला हुआ दिन मिट जाएगा। यह वापस नहीं होगा, इसलिए पहले बैकअप डाउनलोड कर लें।',
+  confirmEraseBody: 'इससे इस फ़ोन में सेव किए गए सभी दाम और आपके बदले हुए सभी दिन मिट जाएंगे। यह कार्रवाई वापस नहीं की जा सकती, इसलिए पहले बैकअप डाउनलोड कर लें।',
   confirmEraseOk: 'सब मिटाएं',
   confirmRestoreTitle: 'यह बैकअप रिस्टोर करें?',
-  confirmRestoreBody: 'इसमें {prices} और {days} हैं। यह इस फोन पर मौजूद डेटा की जगह ले लेगा।',
+  confirmRestoreBody: 'इस बैकअप में {prices} और {days} शामिल हैं। इससे इस फ़ोन पर मौजूद डेटा बदल जाएगा।',
   confirmRestoreOk: 'रिस्टोर करें',
   confirmRestorePrices_one: '{n} मासिक दाम',
   confirmRestorePrices_other: '{n} मासिक दाम',
-  confirmRestoreDays_one: '{n} बदला हुआ दिन',
-  confirmRestoreDays_other: '{n} बदले हुए दिन',
+  confirmRestoreDays_one: '{n} दिन के बदलाव',
+  confirmRestoreDays_other: '{n} दिन के बदलाव',
 
   // ── Guide ─────────────────────────────────────────────────────────────────
   guideAriaLabel: '{appName} में आपका स्वागत है',
   guideStep: 'चरण {n} / {total}',
-  guideExampleCaption: 'उदाहरण: 7 दिन ₹40 पर',
+  guideExampleCaption: 'उदाहरण: ₹40 प्रतिदिन, 7 दिन',
   guideTapCaption: 'उदाहरण: बदलने के लिए दिन पर टैप करें',
   guideLangPickerTitle: 'अपनी भाषा चुनें',
   guideLangPickerBody: 'इसे बाद में सेटिंग्स में बदला जा सकता है।',
 
-  guideTitle1: 'आपका दूध का हिसाब, आपके लिए',
-  guideBody1: 'हर दिन आपके दाम पर गिना जाता है। सामान्य दिनों में कुछ करने की जरूरत नहीं।',
-  guideTitle2: 'कुछ अलग?',
+  guideTitle1: 'दूध का हिसाब आसानी से रखें',
+  guideBody1: 'हर दिन का हिसाब आपके तय किए गए दाम से होता है। सामान्य दिनों में आपको कुछ करने की ज़रूरत नहीं है।',
+  guideTitle2: 'कुछ अलग हुआ?',
   guideBody2: 'किसी दिन टैप करें और बताएं कि दूध नहीं आया, या उस दिन का दाम अलग था।',
   guideTitle3set: 'आप तैयार हैं',
   guideBody3set: 'सेटिंग्स में कभी भी दाम बदलें। कैलेंडर में किसी दिन पर टैप करके सिर्फ उस दिन बदलें।',
-  guideTitle3ask: 'आप हर दिन कितना देते हैं?',
-  guideBody3ask: 'एक दिन के दूध के लिए। बाद में किसी भी महीने के लिए बदल सकते हैं।',
+  guideTitle3ask: 'आप रोज़ दूध के लिए कितना देते हैं?',
+  guideBody3ask: 'यह एक दिन के दूध का दाम है। बाद में आप किसी भी महीने का दाम बदल सकते हैं।',
 
   // ── Guide — aria-labels ───────────────────────────────────────────────────
-  ariaBack: 'पीछे',
+  ariaBack: 'वापस',
   ariaSkip: 'छोड़ें',
 
   // ── Date — month names (long, Devanagari) ─────────────────────────────────
   monthsLong: [
     'जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून',
-    'जुलाई', 'अगस्त', 'सितंबर', 'अक्तूबर', 'नवंबर', 'दिसंबर'
+    'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'
   ],
 
   // ── Date — month names (short, Devanagari) ────────────────────────────────
   monthsShort: [
     'जन', 'फर', 'मार', 'अप्र', 'मई', 'जून',
-    'जुल', 'अग', 'सित', 'अक्त', 'नव', 'दिस'
+    'जुल', 'अग', 'सित', 'अक्ट', 'नव', 'दिस'
   ],
 
   // ── Date — day of week (long, Sunday first, Devanagari) ───────────────────

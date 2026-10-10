@@ -1,11 +1,11 @@
 // DRAFT — needs native Assamese speaker review. See glossary in .agents/tasks/i18n/glossary.md
-// Assamese (Bengali script). Latin digits only — no Assamese/Bengali numerals (০-৯).
+// Assamese (Assamese script). Latin digits only — no Assamese numerals (০-৯).
 // Assamese-specific characters used: ৰ (U+09F0 ra) and ৱ (U+09F1 wa).
 // Plural: Intl.PluralRules('as') — both 0 and 1 use category 'one'; 2+ use 'other'.
 
 export const assamese = {
   // ── App identity ──────────────────────────────────────────────────────────
-  appName: 'হিচাব',
+  appName: 'হিচাপ',
 
   // ── Tab bar ───────────────────────────────────────────────────────────────
   tabHome: 'হোম',
@@ -15,8 +15,8 @@ export const assamese = {
   // ── Shared actions / labels ───────────────────────────────────────────────
   save: 'ছেভ কৰক',
   cancel: 'বাতিল কৰক',
-  next: 'পিছলৈ',                   // "forward/next"
-  back: 'আগলৈ',                    // "back/previous"
+  next: 'আগলৈ',                   // "forward/next"
+  back: 'পিছলৈ',                    // "back/previous"
   skip: 'এৰক',
   gotIt: 'বুজিলোঁ',
   start: 'আৰম্ভ কৰক',
@@ -34,8 +34,8 @@ export const assamese = {
   // ── Home screen ───────────────────────────────────────────────────────────
   spentInMonth: '{month}ত খৰচ',
   estimatedByMonthEnd: 'মাহৰ শেষলৈ প্ৰায় {amount} খৰচ হ\'ব',
-  specialDays_one: '{n} বিশেষ দাম দিন',
-  specialDays_other: '{n} বিশেষ দাম দিন',
+  specialDays_one: '{n} দিনত বেলেগ দাম',
+  specialDays_other: '{n} দিনত বেলেগ দাম',
   missedDays_one: '{n} দিন গাখীৰ নাহিল',
   missedDays_other: '{n} দিন গাখীৰ নাহিল',
   thisWeek: 'এই সপ্তাহ',
@@ -47,7 +47,7 @@ export const assamese = {
   todayLabel: 'আজি',
 
   // ── Home — price setup (first run / new month) ────────────────────────────
-  setupKeepPrice: '{month}ৰ বাবে প্ৰতিদিন {amount} ৰাখিবনে?',    // ৰ U+09F0
+  setupKeepPrice: '{month}ৰ বাবে প্ৰতিদিনৰ দাম {amount} ৰাখিবনে?',    // ৰ U+09F0
   setupWhatDoYouPay: 'আপুনি প্ৰতিদিন গাখীৰৰ বাবে কিমান দিয়ে?',
   setupSameAsLast: 'আগৰ মাহৰ দৰে। দাম বাঢ়িলে সলনি কৰক।',
   setupSetDifferent: 'আপুনি প্ৰতিটো মাহৰ বাবে বেলেগ দাম ঠিক কৰিব পাৰে।',
@@ -65,11 +65,11 @@ export const assamese = {
   calShareBill: 'বিল শ্বেয়াৰ কৰক',
   calSelectedDays_one: '{n} দিন বাছনি হৈছে',
   calSelectedDays_other: '{n} দিন বাছনি হৈছে',
-  calTapTheDays: 'যি দিনবোৰ বিচাৰে সিহঁতত টেপ কৰক',
+  calTapTheDays: 'আপুনি যিবোৰ দিন বাছিব বিচাৰে, সেই দিনবোৰত টেপ কৰক',
   calBillCopied: 'বিল কপি হ\'ল',
   calCouldNotShare: 'বিল শ্বেয়াৰ কৰিব পৰা নগ\'ল',
   calSetPriceBtn: 'দাম ঠিক কৰক ›',
-  calEditPriceBtn: '{amount}/দিন সলনি কৰক',
+  calEditPriceBtn: 'দাম সলনি কৰক · {amount}/দিন',
 
   // ── Calendar — aria-labels ────────────────────────────────────────────────
   ariaCalTotal: '{amount} {label}',
@@ -89,8 +89,8 @@ export const assamese = {
   billMilkman: 'গাখীৰৱালা: {name}',   // ৱ U+09F1
   billPrice: 'দাম: প্ৰতিদিন {amount}',
   billDelivered: 'ডেলিভাৰি: {days} দিন',    // ৰ U+09F0
-  billNoMilk_one: 'গাখীৰ নাই: {n} দিন ({dates} {mon})',
-  billNoMilk_other: 'গাখীৰ নাই: {n} দিন ({dates} {mon})',
+  billNoMilk_one: 'গাখীৰ নাহিল: {n} দিন ({dates} {mon})',
+  billNoMilk_other: 'গাখীৰ নাহিল: {n} দিন ({dates} {mon})',
   billSpecial: 'বিশেষ দাম: {items}',
   billTotal: 'মুঠ: {amount}',
 
@@ -136,19 +136,19 @@ export const assamese = {
   settingsHelp: 'সহায়',
   settingsNameLabel: 'নাম',
   settingsNamePlaceholder: 'ঐচ্ছিক',
-  settingsNameHint: 'আপুনি শ্বেয়াৰ কৰা বিলত দেখাব।',
+  settingsNameHint: 'এই নামটো আপুনি শ্বেয়াৰ কৰা বিলত দেখা যাব।',
   settingsPriceAriaLabel: '{month}ৰ বাবে প্ৰতিদিনৰ দাম',  // ৰ U+09F0
   settingsPriceUsedFor: '{month}ৰ প্ৰতিটো দিনৰ বাবে এই দাম ব্যৱহাৰ হ\'ব।',
   settingsPriceNotSet: '{month}ৰ বাবে দাম নাই, সেইবাবে আগৰ মাহৰ {amount} ব্যৱহাৰ হৈছে।',
   settingsPriceNone: 'এতিয়াও ঠিক কৰা হোৱা নাই।',
   settingsTrackMissedLabel: 'গাখীৰ নহা দিনবোৰ ট্ৰেক কৰক',
   settingsTrackMissedHint: '"নাহিল" বিকল্প যোগ হ\'ব',
-  settingsWeekStartLabel: 'কেলেণ্ডাৰ সপ্তাহ আৰম্ভ হয়',   // ৰ U+09F0
+  settingsWeekStartLabel: 'সপ্তাহৰ আৰম্ভণি',   // ৰ U+09F0
   settingsWeekSunday: 'দেওবাৰ',
   settingsWeekMonday: 'সোমবাৰ',        // ৰ U+09F0
   settingsBackupDownload: 'বেকআপ ডাউনলোড কৰক',
   settingsBackupRestore: 'বেকআপৰ পৰা ৰিষ্টোৰ কৰক',   // ৰ U+09F0 twice
-  settingsBackupHint: 'সকলো কেৱল এই ফোনত ছেভ আছে। সময়ে সময়ে বেকআপ ডাউনলোড কৰক।',
+  settingsBackupHint: 'সকলো ডেটা কেৱল এই ফোনতহে সংৰক্ষিত থাকে। মাজে-সময়ে বেকআপ ডাউনলোড কৰক।',
   settingsShowGuide: 'গাইড পুনৰায় চাওক',
   settingsEraseData: 'সকলো ডেটা মচক',
   settingsFooter: '{appName} · অফলাইনত কাম কৰে',
@@ -161,7 +161,7 @@ export const assamese = {
 
   // ── Settings — confirm dialogs ────────────────────────────────────────────
   confirmEraseTitle: 'সকলো ডেটা মচিবনে?',
-  confirmEraseBody: 'এইটোৱে আপোনাৰ ফোনৰ পৰা সকলো দাম আৰু সলনি কৰা দিন মচি পেলাব। এইটো পূৰ্বৱৎ কৰিব নোৱাৰি, সেইবাবে আগতে বেকআপ ডাউনলোড কৰক।',   // ৱ U+09F1
+  confirmEraseBody: "ই আপোনাৰ ফোনৰ পৰা সকলো দাম আৰু আপুনি সলনি কৰা সকলো দিন মচি পেলাব। এই কামটো উভতাই ল'ব নোৱাৰি, সেয়েহে আগতে বেকআপ ডাউনলোড কৰক।",   // ৱ U+09F1
   confirmEraseOk: 'সকলো মচক',
   confirmRestoreTitle: 'এই বেকআপ ৰিষ্টোৰ কৰিবনে?',   // ৰ U+09F0
   confirmRestoreBody: 'ইয়াত {prices} আৰু {days} আছে। এইটোৱে এই ফোনত থকা ডেটা সলনি কৰিব।',
@@ -174,22 +174,22 @@ export const assamese = {
   // ── Guide ─────────────────────────────────────────────────────────────────
   guideAriaLabel: '{appName}লৈ আপোনাক স্বাগতম',
   guideStep: 'পদক্ষেপ {n} / {total}',
-  guideExampleCaption: 'উদাহৰণ: 7 দিন ₹40 হাৰত',   // ৰ U+09F0
+  guideExampleCaption: 'উদাহৰণ: 7 দিন, প্ৰতিদিন ₹40',   // ৰ U+09F0
   guideTapCaption: 'উদাহৰণ: সলনিৰ বাবে দিনত টেপ কৰক',
   guideLangPickerTitle: 'আপোনাৰ ভাষা বাছক',
   guideLangPickerBody: 'এইটো পিছত ছেটিংছত সলনি কৰিব পাৰিব।',
 
-  guideTitle1: 'আপোনাৰ গাখীৰৰ হিচাব, আপোনাৰ বাবে',
+  guideTitle1: 'গাখীৰৰ হিচাপ সহজে ৰাখক',
   guideBody1: 'প্ৰতিটো দিন আপোনাৰ দামত গণনা হয়। সাধাৰণ দিনত কৰিবলৈ একো নাই।',
-  guideTitle2: 'কিবা বেলেগ?',
+  guideTitle2: "কিবা বেলেগ হ'ল নেকি?",
   guideBody2: 'কোনো দিনত টেপ কৰি জনাওক যে গাখীৰ নাহিল, বা সেই দিনৰ দাম বেলেগ আছিল।',
   guideTitle3set: 'আপুনি সাজু',
   guideBody3set: 'ছেটিংছত যিকোনো সময়ত দাম সলনি কৰক। কেলেণ্ডাৰত কোনো দিনত টেপ কৰি কেৱল সেই দিনটো সলনি কৰক।',   // ৰ U+09F0
   guideTitle3ask: 'আপুনি প্ৰতিদিন কিমান দিয়ে?',
-  guideBody3ask: 'এদিনৰ গাখীৰৰ বাবে। পিছত যিকোনো মাহৰ বাবে সলনি কৰিব পাৰিব।',
+  guideBody3ask: 'এইটো এদিনৰ গাখীৰৰ দাম। পিছত যিকোনো মাহৰ বাবে দাম সলনি কৰিব পাৰিব।',
 
   // ── Guide — aria-labels ───────────────────────────────────────────────────
-  ariaBack: 'আগলৈ',
+  ariaBack: 'পিছলৈ',
   ariaSkip: 'এৰক',
 
   // ── Date — month names (long, Assamese/Bengali script) ───────────────────
