@@ -173,6 +173,9 @@ export const assamese = {
   guideStep: 'পদক্ষেপ {n} / {total}',
   guideExampleCaption: 'উদাহৰণ: 7 দিন ₹40 হাৰত',   // ৰ U+09F0
   guideTapCaption: 'উদাহৰণ: সলনিৰ বাবে দিনত টেপ কৰক',
+  guideLangPickerTitle: 'আপোনাৰ ভাষা বাছক',
+  guideLangPickerBody: 'এইটো পিছত ছেটিংছত সলনি কৰিব পাৰিব।',
+
   guideTitle1: 'আপোনাৰ গাখীৰৰ হিচাব, আপোনাৰ বাবে',
   guideBody1: 'প্ৰতিটো দিন আপোনাৰ দামত গণনা হয়। সাধাৰণ দিনত কৰিবলৈ একো নাই।',
   guideTitle2: 'কিবা বেলেগ?',

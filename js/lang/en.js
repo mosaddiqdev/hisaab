@@ -171,6 +171,9 @@ export const en = {
   guideStep: 'Step {n} of {total}',
   guideExampleCaption: 'Example: 7 days at ₹40',
   guideTapCaption: 'Example: tap a day to change it',
+  guideLangPickerTitle: 'Choose your language',
+  guideLangPickerBody: 'You can change this later in Settings.',
+
   guideTitle1: 'Your milk bill, kept for you',
   guideBody1: 'Every day is counted at your price. On normal days there is nothing to do.',
   guideTitle2: 'Something different?',

@@ -3,7 +3,7 @@ import { ui, refresh, reduced, haptic, HAPTIC, invalid, flash } from './state.js
 import { hasOwnPrice, monthPrice } from '../logic.js';
 import { ym } from '../utils/date.js';
 import { normalizeDigits } from '../utils/format.js';
-import { t, arr, lang, setLang, detectLang } from '../i18n.js';
+import { t, arr, lang, setLang } from '../i18n.js';
 
 let root = null, list = [], at = 0;
 
@@ -36,7 +36,7 @@ function steps() {
   // Language picker step is prepended for new users only
   if (!state.langPicked) {
     return [
-      { art: langPickerArt(), title: t('guideTitle1'), body: t('guideBody1'), btn: t('next'), isLangStep: true },
+      { art: langPickerArt(), title: t('guideLangPickerTitle'), body: t('guideLangPickerBody'), btn: t('next'), isLangStep: true },
       ...base
     ];
   }

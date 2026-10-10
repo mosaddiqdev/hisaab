@@ -33,7 +33,7 @@ export const hi = {
   // ── Home screen ───────────────────────────────────────────────────────────
   spentInMonth: '{month} में खर्च',
   estimatedByMonthEnd: 'महीने के अंत तक लगभग {amount} खर्च होगा',
-  specialDays_one: '{n} विशेष दाम दिन',
+  specialDays_one: '{n} विशेष दाम दिन',   // REVIEW: same as _other — confirm if singular needs a different form, e.g. '{n} विशेष दाम का दिन'
   specialDays_other: '{n} विशेष दाम दिन',
   missedDays_one: '{n} छूटा दिन',
   missedDays_other: '{n} छूटे दिन',
@@ -172,6 +172,9 @@ export const hi = {
   guideStep: 'चरण {n} / {total}',
   guideExampleCaption: 'उदाहरण: 7 दिन ₹40 पर',
   guideTapCaption: 'उदाहरण: बदलने के लिए दिन पर टैप करें',
+  guideLangPickerTitle: 'अपनी भाषा चुनें',
+  guideLangPickerBody: 'इसे बाद में सेटिंग्स में बदला जा सकता है।',
+
   guideTitle1: 'आपका दूध का हिसाब, आपके लिए',
   guideBody1: 'हर दिन आपके दाम पर गिना जाता है। सामान्य दिनों में कुछ करने की जरूरत नहीं।',
   guideTitle2: 'कुछ अलग?',
