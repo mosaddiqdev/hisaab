@@ -125,6 +125,9 @@ export const assamese = {
   confirmCancel: 'বাতিল কৰক',
 
   // ── Settings ──────────────────────────────────────────────────────────────
+  settingsBillLanguage: 'বিলৰ ভাষা',
+  settingsBillLangApp: 'এপৰ ভাষাৰ দৰে',
+
   settingsTitle: 'ছেটিংছ',
   settingsMilkman: 'গাখীৰৱালা',      // ৱ U+09F1
   settingsPrice: 'প্ৰতিদিনৰ দাম',

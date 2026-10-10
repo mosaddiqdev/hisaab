@@ -10,10 +10,12 @@
 
 html:lang(hi) {
   --font-ui: 'Inter', 'Hind', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --font-display: 'Fraunces', 'Tiro Devanagari Hindi', Georgia, serif;
 }
 
 html:lang(as) {
   --font-ui: 'Inter', 'Hind Siliguri', 'Noto Sans Bengali', system-ui, sans-serif;
+  --font-display: 'Fraunces', 'Tiro Bangla', Georgia, serif;
 }
 
 /* ── Body text ───────────────────────────────────────────────────────────── */

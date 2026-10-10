@@ -36,7 +36,7 @@ export function render() {
   }).join('');
 
   const billLangOptions = [
-    `<option value="app" ${billLangVal === 'app' ? 'selected' : ''}>Same as app language</option>`,
+    `<option value="app" ${billLangVal === 'app' ? 'selected' : ''}>${t('settingsBillLangApp')}</option>`,
     `<option value="en" ${billLangVal === 'en' ? 'selected' : ''}>English</option>`,
     `<option value="hi" ${billLangVal === 'hi' ? 'selected' : ''}>हिंदी</option>`,
     `<option value="as" ${billLangVal === 'as' ? 'selected' : ''}>অসমীয়া</option>`
@@ -46,7 +46,7 @@ export function render() {
 
     <h2 class="sec">Language / भाषा / ভাষা</h2>
     <div class="sheet-alt" style="--n:3">${langButtons}</div>
-    <label class="field" style="margin-top:8px">Bill language
+    <label class="field" style="margin-top:8px">${t('settingsBillLanguage')}
       <select class="input" data-change="setBillLang">${billLangOptions}</select></label>
 
     <h2 class="sec">${t('settingsMilkman')}</h2>

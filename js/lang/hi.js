@@ -124,6 +124,9 @@ export const hi = {
   confirmCancel: 'रद्द करें',
 
   // ── Settings ──────────────────────────────────────────────────────────────
+  settingsBillLanguage: 'बिल की भाषा',
+  settingsBillLangApp: 'ऐप की भाषा जैसी',
+
   settingsTitle: 'सेटिंग्स',
   settingsMilkman: 'दूधवाला',
   settingsPrice: 'प्रतिदिन दाम',

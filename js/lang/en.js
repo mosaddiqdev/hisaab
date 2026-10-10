@@ -123,6 +123,9 @@ export const en = {
   confirmCancel: 'Cancel',
 
   // ── Settings ──────────────────────────────────────────────────────────────
+  settingsBillLanguage: 'Bill language',
+  settingsBillLangApp: 'Same as app language',
+
   settingsTitle: 'Settings',
   settingsMilkman: 'Milkman',
   settingsPrice: 'Price per day',
