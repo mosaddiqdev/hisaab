@@ -29,11 +29,8 @@ export function render() {
   const currentLang = lang();
   const billLangVal = state.billLang || 'app';
 
-  // Language buttons: each language's name in its own script
-  const langButtons = ['en', 'hi', 'as'].map(code => {
-    const names = { en: 'English', hi: 'हिंदी', as: 'অসমীয়া' };
-    return `<button class="btn ${currentLang === code ? '' : 'btn-outline'}" data-act="setLang" data-v="${code}" aria-pressed="${currentLang === code}">${names[code]}</button>`;
-  }).join('');
+  // App language: same sliding control as "week starts on"; each name is set in its own script
+  const langOpts = opts('setLang', [['en', '<span lang="en">English</span>'], ['hi', '<span lang="hi">हिंदी</span>'], ['as', '<span lang="as">অসমীয়া</span>']], currentLang);
 
   const billLangOptions = [
     `<option value="app" ${billLangVal === 'app' ? 'selected' : ''}>${t('settingsBillLangApp')}</option>`,
@@ -44,15 +41,6 @@ export function render() {
 
   return `<section class="page set"><h1>${t('settingsTitle')}</h1>
 
-    <h2 class="sec">Language / भाषा / ভাষা</h2>
-    <div class="sheet-alt" style="--n:3">${langButtons}</div>
-    <label class="field" style="margin-top:8px">${t('settingsBillLanguage')}
-      <select class="input" data-change="setBillLang">${billLangOptions}</select></label>
-
-    <h2 class="sec">${t('settingsMilkman')}</h2>
-    <label class="field" style="margin-top:0">${t('settingsNameLabel')}<input id="set-name" class="input" value="${esc(state.milkman)}" placeholder="${t('settingsNamePlaceholder')}" data-change="saveName"></label>
-    <p class="hint">${t('settingsNameHint')}</p>
-
     <h2 class="sec">${t('settingsPrice')}</h2>
     <div class="stepper"><button class="icon-btn" data-act="setPrev" aria-label="${t('ariaPrevMonth')}" ${canPrev(key) ? '' : 'disabled'}>‹</button><b class="${slide}">${mn} ${y}</b>
       <button class="icon-btn" data-act="setNext" aria-label="${t('ariaNextMonth')}" ${canNext(key) ? '' : 'disabled'}>›</button></div>
@@ -61,11 +49,18 @@ export function render() {
     <button class="btn" data-act="saveMonthPrice">${t('savePrice')}</button>
     <p class="hint">${own ? t('settingsPriceUsedFor', { month: mn }) : eff > 0 ? t('settingsPriceNotSet', { month: mn, amount: fmt(eff) }) : t('settingsPriceNone')}</p>
 
-    <h2 class="sec">${t('settingsTracking')}</h2>
+    <h2 class="sec">${t('settingsMilkman')}</h2>
+    <label class="field" style="margin-top:0">${t('settingsNameLabel')}<input id="set-name" class="input" value="${esc(state.milkman)}" placeholder="${t('settingsNamePlaceholder')}" data-change="saveName"></label>
+    <p class="hint">${t('settingsNameHint')}</p>
+    <label class="field">${t('settingsBillLanguage')}
+      <select class="input" data-change="setBillLang">${billLangOptions}</select></label>
+
+    <h2 class="sec">${t('settingsPreferences')}</h2>
     <div class="group">
       <div class="row"><div><b>${t('settingsTrackMissedLabel')}</b><p class="hint">${t('settingsTrackMissedHint')}</p></div>
         <button class="switch" role="switch" aria-checked="${state.trackMissed}" aria-label="${t('settingsTrackMissedLabel')}" data-act="toggleMissed"></button></div>
       <div class="row stack"><b>${t('settingsWeekStartLabel')}</b>${opts('setWeek', [[0, t('settingsWeekSunday')], [1, t('settingsWeekMonday')]], state.weekStart || 0)}</div>
+      <div class="row stack"><b>${t('settingsAppLanguage')}</b>${langOpts}</div>
     </div>
 
     <h2 class="sec">${t('settingsYourData')}</h2>
@@ -105,6 +100,8 @@ function parseBackup(text) {
 export const actions = {
   setLang(el) {
     const code = el.dataset.v;
+    if (code === lang()) return;
+    haptic(HAPTIC.SELECT);
     i18nSetLang(code);
     state.lang = code; state.langPicked = true; save();
   },

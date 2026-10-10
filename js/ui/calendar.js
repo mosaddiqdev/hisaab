@@ -1,11 +1,12 @@
 import { state, save } from '../store.js';
-import { ui, refresh, openSheet, toast, haptic, HAPTIC, goTab } from './state.js';
+import { ui, refresh, openSheet, toast, haptic, HAPTIC, goTab, fadeSwap } from './state.js';
 import { dayInfo, monthSummary, monthPrice, hasOwnPrice, bulkSet, setDay, canPrev, canNext } from '../logic.js';
 import { ymd, daysInMonth, monthName } from '../utils/date.js';
 import { fmt, num } from '../utils/format.js';
 import { t, nPlural, arr, lang } from '../i18n.js';
 import { digits, animateRoll } from './roll.js';
 
+const KINDS = ['normal', 'missed', 'special'];
 const keyOf = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
 // Current month: so far. Past month: final. Future month: planned.
@@ -22,6 +23,10 @@ export function render() {
   const now = new Date(), y = ui.cursor.getFullYear(), m = ui.cursor.getMonth(), key = keyOf(y, m), today = ymd(now);
   const { cur, future, full, s } = figures(y, m, now), sel = ui.select, n = sel ? sel.size : 0;
   const ws = state.weekStart || 0, lead = (new Date(y, m, 1).getDay() - ws + 7) % 7, cells = [];
+  // The old circles are still on screen while this runs. A day that changed is drawn as it WAS and flipped to how it IS
+  // in enter(), so its colour fades (no jump, no zoom) and a day you hand-picked or un-picked fades too.
+  const was = {};
+  document.querySelectorAll('.cd[data-day]').forEach(el => { was[el.dataset.day] = { kind: KINDS.find(c => el.classList.contains(c)), sel: el.classList.contains('sel'), mark: el.querySelector('em').textContent }; });
   for (let i = 0; i < lead; i++) cells.push('<span></span>');
   for (let d = 1; d <= daysInMonth(y, m); d++) {
     const dt = new Date(y, m, d), k = ymd(dt), i = dayInfo(dt), on = sel && sel.has(k);
@@ -32,9 +37,11 @@ export function render() {
       : i.kind === 'special'
         ? t('ariaDaySpecial', { day: d, month: mShort, amount: i.amount })
         : t('ariaDayNote', { day: d, month: mShort });
-    cells.push(`<button class="cd ${i.kind} ${k === today ? 'today' : ''} ${k > today ? 'future' : ''} ${on ? 'sel' : ''} ${k === ui.changed ? 'pop' : ''}"
+    const mark = i.kind === 'special' ? fmt(i.amount) : i.kind === 'missed' ? '✕' : '', w = was[k];
+    const flip = w && (w.kind !== i.kind || w.sel !== !!on || w.mark !== mark), from = flip ? w : { kind: i.kind, sel: !!on, mark };
+    cells.push(`<button class="cd ${from.kind} ${k === today ? 'today' : ''} ${k > today ? 'future' : ''} ${from.sel ? 'sel' : ''}" ${flip ? `data-flip="${i.kind}" data-sel="${on ? 1 : 0}" data-mark="${mark}"` : ''}
       data-act="openDay" data-day="${k}" ${sel ? `aria-pressed="${!!on}"` : ''} aria-label="${ariaLabel}">
-      <span class="dot">${d}</span><em>${i.kind === 'special' ? fmt(i.amount) : i.kind === 'missed' ? '✕' : ''}</em></button>`);
+      <span class="dot">${d}</span><em>${from.mark}</em></button>`);
   }
   const label = future ? t('calLabelPlanned') : cur ? t('calLabelSoFar') : t('calLabelTotal');
   const total = future ? full.total : s.total, str = num(total), prev = ui.calLast && ui.calLast.key === key ? ui.calLast.str : undefined;
@@ -67,6 +74,13 @@ export function render() {
 
 export function enter() {
   ui.calDir = 0; ui.dockIn = false;
+  document.querySelectorAll('.cd[data-flip]').forEach(el => {
+    const kind = el.dataset.flip, mark = el.dataset.mark, em = el.querySelector('em');
+    void el.offsetWidth;
+    el.classList.remove(...KINDS); el.classList.add(kind); el.classList.toggle('sel', el.dataset.sel === '1');   // colours fade (motion.css)
+    if (em.textContent !== mark) fadeSwap(em, () => { em.textContent = mark; });
+    ['flip', 'sel', 'mark'].forEach(a => el.removeAttribute('data-' + a));
+  });
   const box = document.querySelector('.cal-total .num');
   if (box) { animateRoll(box); ui.calLast = { key: box.dataset.key, str: box.dataset.str }; }
 }

@@ -128,9 +128,10 @@ export const hi = {
   settingsBillLangApp: 'ऐप की भाषा जैसी',
 
   settingsTitle: 'सेटिंग्स',
-  settingsMilkman: 'दूधवाला',
+  settingsMilkman: 'दूधवाला और बिल',
   settingsPrice: 'रोज़ का दाम',
-  settingsTracking: 'ट्रैकिंग',
+  settingsPreferences: 'पसंद',
+  settingsAppLanguage: 'ऐप की भाषा',
   settingsYourData: 'आपका डेटा',
   settingsHelp: 'मदद',
   settingsNameLabel: 'नाम',

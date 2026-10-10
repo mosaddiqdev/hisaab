@@ -7,6 +7,7 @@ import * as calendar from './ui/calendar.js';
 import * as settings from './ui/settings.js';
 import * as sheet from './ui/sheet.js';
 import * as guide from './ui/guide.js';
+import { ripple, initRipples } from './ui/ripple.js';
 
 const TABS = [['home', home], ['calendar', calendar], ['settings', settings]];
 const view = document.getElementById('view'), tabs = document.getElementById('tabs'), overlay = document.getElementById('overlay-root');
@@ -20,19 +21,27 @@ for (const group of [home.actions, calendar.actions, settings.actions, sheet.act
   }
 }
 
+// The tab bar is built once and never replaced, so its slide can run to the end.
+// (Rebuilding it on every draw cut the animation off halfway.) Only the labels are updated, for language changes.
+const tabKeyMap = { home: 'tabHome', calendar: 'tabCalendar', settings: 'tabSettings' };
+tabs.innerHTML = `<i class="tab-ind" aria-hidden="true"></i>` + TABS.map(([id]) =>
+  `<button class="tab" data-act="tab" data-tab="${id}">${icons[id]}<span class="lbl"></span></button>`).join('');
 function setNav() {
+  tabs.dataset.i = TABS.findIndex(([id]) => id === ui.tab);
   tabs.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-current', b.dataset.tab === ui.tab ? 'page' : 'false'));
+}
+function setTabLabels() {
+  tabs.querySelectorAll('.tab').forEach(b => {
+    const label = t(tabKeyMap[b.dataset.tab]);
+    b.setAttribute('aria-label', label);
+    const lbl = b.querySelector('.lbl'); if (lbl.textContent !== label) lbl.textContent = label;
+  });
 }
 
 document.addEventListener('navchange', setNav);
 let lastTab = ui.tab;
 function draw() {
-  // Rebuild tab labels each draw so they update when language changes
-  const tabKeyMap = { home: 'tabHome', calendar: 'tabCalendar', settings: 'tabSettings' };
-  tabs.innerHTML = TABS.map(([id]) => {
-    const label = t(tabKeyMap[id]);
-    return `<button class="tab" data-act="tab" data-tab="${id}" aria-label="${label}">${icons[id]}<span class="lbl">${label}</span></button>`;
-  }).join('');
+  setTabLabels();
 
   const current = TABS.find(t => t[0] === ui.tab)[1];
   view.innerHTML = current.render();
@@ -41,7 +50,6 @@ function draw() {
   if (switched || ui.enter) view.firstElementChild?.classList.add('enter'); // new tab or a big content change: fade the page in
   ui.enter = false;
   setNav();
-  if (switched) { const b = tabs.querySelector('.tab[aria-current=page]'); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); } // icon hops when you arrive
   overlay.innerHTML = sheet.render();
   current.enter?.();
   ui.changed = null;
@@ -51,6 +59,28 @@ document.addEventListener('refresh', draw);
 // Listen for language changes: re-render the current screen with new language
 document.addEventListener('langchange', e => {
   state.lang = e.detail.lang; save(); draw();
+});
+
+initRipples(); // every other button in the app
+
+// ---- Tab bar ripple: lives inside the active pill only.
+// Touch the active tab: a flat ripple starts under your finger, holds while you press, and fades when you let go.
+// Touch another tab: the pill slides over, and a ripple opens from its centre as it lands.
+const pill = tabs.querySelector('.tab-ind');
+tabs.addEventListener('pointerdown', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab || tab.getAttribute('aria-current') !== 'page') return;
+  const r = pill.getBoundingClientRect(), release = ripple(pill, e.clientX - r.left, e.clientY - r.top, { held: true });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => tab.addEventListener(n, release, { once: true }));
+});
+let landed = ui.tab;
+document.addEventListener('navchange', () => {
+  if (ui.tab === landed) return;
+  landed = ui.tab;
+  let done = false;
+  const land = () => { if (done) return; done = true; ripple(pill, pill.clientWidth / 2, pill.clientHeight / 2); };
+  pill.addEventListener('transitionend', e => { if (e.propertyName === 'transform') land(); }, { once: true });
+  setTimeout(land, 480); // if the slide is skipped (reduced motion), still settle
 });
 
 // ---- Taps

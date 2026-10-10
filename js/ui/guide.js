@@ -3,7 +3,7 @@ import { ui, refresh, reduced, haptic, HAPTIC, invalid, flash } from './state.js
 import { hasOwnPrice, monthPrice } from '../logic.js';
 import { ym } from '../utils/date.js';
 import { normalizeDigits } from '../utils/format.js';
-import { t, arr, lang, setLang } from '../i18n.js';
+import { t, arr, lang, setLang, fontReady } from '../i18n.js';
 
 let root = null, list = [], at = 0;
 
@@ -16,12 +16,21 @@ const week = (marks = {}) => {
   }).join('')}</div>`;
 };
 
-// Language picker art — three large buttons, each language named in its own script
-const langPickerArt = () => `<div class="g-lang-pick" aria-hidden="true">
-  <button class="btn ${lang() === 'en' ? '' : 'btn-outline'}" data-act="guideLangEn">English</button>
-  <button class="btn ${lang() === 'hi' ? '' : 'btn-outline'}" data-act="guideLangHi">हिंदी</button>
-  <button class="btn ${lang() === 'as' ? '' : 'btn-outline'}" data-act="guideLangAs">অসমীয়া</button>
-</div>`;
+// Language picker: three radio cards, each language named in its own script.
+// The badge glyph is the first letter of that script, so the cards read without needing any shared language.
+const LANGS = [['en', 'English', 'A'], ['hi', 'हिंदी', 'अ'], ['as', 'অসমীয়া', 'অ']];
+const langPickerArt = () => `<div class="g-langs" role="radiogroup" aria-label="Language / भाषा / ভাষা">${LANGS.map(([code, name, glyph], i) => {
+  const on = lang() === code;
+  return `<button class="g-opt${on ? ' on' : ''}" style="--k:${i}" role="radio" aria-checked="${on}" data-act="guideLang" data-v="${code}">
+    <span class="g-glyph" lang="${code}" aria-hidden="true">${glyph}</span>
+    <span class="g-opt-name" lang="${code}">${name}</span>
+    <span class="g-radio" aria-hidden="true"><svg class="tick" viewBox="0 0 20 20"><path d="M5 10.5l3.5 3.5L15 7"/></svg></span>
+  </button>`;
+}).join('')}</div>`;
+
+// The language step is decided once, when the guide opens, and never removed while it is open.
+// (Before, picking a language rebuilt the list without it, so Back had nowhere to go.)
+let withLang = false;
 
 function steps() {
   const price = monthPrice(ym(new Date())), has = hasOwnPrice(ym(new Date()));
@@ -34,7 +43,7 @@ function steps() {
         : { art: '', ask: price, title: t('guideTitle3ask'), body: t('guideBody3ask'), btn: t('start') }
   ];
   // Language picker step is prepended for new users only
-  if (!state.langPicked) {
+  if (withLang) {
     return [
       { art: langPickerArt(), title: t('guideLangPickerTitle'), body: t('guideLangPickerBody'), btn: t('next'), isLangStep: true },
       ...base
@@ -52,6 +61,7 @@ const panel = (s, i) => `<section class="g-step${i ? '' : ' active'}" ${i ? 'ine
 // so nothing is rebuilt (and nothing typed is lost) when the app behind it redraws.
 export function mount() {
   if (root) return;
+  withLang = !state.langPicked;
   list = steps(); at = 0; ui.guideStep = 0;
   root = document.createElement('div');
   root.className = 'guide'; root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', t('guideAriaLabel'));
@@ -81,19 +91,27 @@ function go(n) {
   if (list[at].ask !== undefined) setTimeout(() => root?.querySelector('#g-price')?.focus(), 380); // after the slide settles
 }
 
-// After language is picked from guide: rebuild list with the new language's strings and re-render
+// A language was tapped: switch the app language and update the guide in place.
+// The step list and the current position stay as they are, so Back and the dots keep working.
 function pickLang(code) {
+  if (code === lang()) return;
   setLang(code);
   state.lang = code; state.langPicked = true; save();
-  // Rebuild the guide content with the chosen language's strings
-  list = steps(); // state.langPicked is now true, so lang step is gone
-  // Re-render everything in the guide
-  const track = root.querySelector('.g-track'), dots = root.querySelector('.dots'), foot = root.querySelector('.g-foot');
-  track.innerHTML = list.map(panel).join('');
-  dots.innerHTML = list.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('');
-  foot.querySelector('[data-act=guideNext]').textContent = list[0].btn;
+  list = steps();
+  const panels = root.querySelectorAll('.g-step');
+  // Language step: only the words and the selected card change, so the cards do not replay their entrance.
+  root.querySelectorAll('.g-opt').forEach(o => { const on = o.dataset.v === code; o.classList.toggle('on', on); o.setAttribute('aria-checked', on); });
+  panels[0].querySelector('h1').textContent = list[0].title;
+  panels[0].querySelector('.body').textContent = list[0].body;
+  // Every other step is rebuilt in the new language.
+  list.slice(1).forEach((s, i) => { panels[i + 1].outerHTML = panel(s, i + 1); });
+  root.querySelectorAll('.g-step').forEach((el, i) => { el.classList.toggle('active', i === at); el.toggleAttribute('inert', i !== at); });
+  root.querySelectorAll('.g-step').forEach((el, i) => el.setAttribute('aria-label', t('guideStep', { n: i + 1, total: list.length })));
   root.setAttribute('aria-label', t('guideAriaLabel'));
-  at = 0; sync();
+  root.querySelector('[data-act=guideBack]').setAttribute('aria-label', t('ariaBack'));
+  root.querySelector('[data-act=guideSkip]').textContent = t('skip');
+  const btn = root.querySelector('[data-act=guideNext]'); btn.textContent = list[at].btn;
+  fontReady(code);
 }
 
 // Drag the pager with a finger: it follows, then snaps to the next or previous step.
@@ -128,7 +146,9 @@ function bindSwipe() {
 // so Home is revealed already finished (no flash of the price question).
 function leave(reveal) {
   if (!root || root.classList.contains('out')) return;
-  state.guideSeen = true; save();
+  state.guideSeen = true;
+  if (withLang) { state.lang = lang(); state.langPicked = true; }
+  save();
   if (reveal) { ui.enter = true; ui.rollFromZero = true; }
   refresh();
   const node = root, done = () => { node.remove(); if (root === node) root = null; document.body.classList.remove('guide-open'); };
@@ -148,7 +168,5 @@ export const actions = {
   },
   guideBack() { if (at > 0) { haptic(HAPTIC.SELECT); go(at - 1); } },
   guideSkip: () => { haptic(HAPTIC.SELECT); leave(false); },
-  guideLangEn() { pickLang('en'); },
-  guideLangHi() { pickLang('hi'); },
-  guideLangAs() { pickLang('as'); }
+  guideLang(el) { haptic(HAPTIC.SELECT); pickLang(el.dataset.v); }
 };

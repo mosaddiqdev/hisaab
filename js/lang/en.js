@@ -127,9 +127,10 @@ export const en = {
   settingsBillLangApp: 'Same as app language',
 
   settingsTitle: 'Settings',
-  settingsMilkman: 'Milkman',
+  settingsMilkman: 'Milkman and bill',
   settingsPrice: 'Price per day',
-  settingsTracking: 'Tracking',
+  settingsPreferences: 'Preferences',
+  settingsAppLanguage: 'App language',
   settingsYourData: 'Your data',
   settingsHelp: 'Help',
   settingsNameLabel: 'Name',

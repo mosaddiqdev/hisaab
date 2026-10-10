@@ -43,3 +43,10 @@ export function flash(btn, label = 'Saved', ms = 900) {
   btn.innerHTML = `<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>${label}`;
   return new Promise(done => setTimeout(() => { btn.classList.remove('ok'); btn.disabled = false; btn.innerHTML = html; done(); }, ms));
 }
+
+// Fade a piece of text out, swap it, fade it back in. A change reads as one calm moment instead of a flash.
+export function fadeSwap(el, apply) {
+  if (reduced()) return apply();
+  const out = el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, easing: 'ease-in', fill: 'forwards' });
+  out.finished.then(() => { apply(); el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 170, easing: 'ease-out' }); out.cancel(); }).catch(() => {});
+}

@@ -28,4 +28,20 @@
 .dots i{width:8px;height:8px;border-radius:4px;background:var(--border)}
 .dots i.on{width:22px;background:var(--accent)}
 .g-foot .btn{margin-top:0}
+/* Language step: three radio cards */
+.g-langs{display:flex;flex-direction:column;gap:10px;width:100%}
+.g-opt{position:relative;display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:10px 16px 10px 12px;text-align:left;border:1px solid var(--border);border-radius:calc(var(--radius) + 4px);background:var(--bg)}
+.g-opt.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft)}
+.g-glyph{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--muted);font:500 24px/1 var(--font-display);font-variation-settings:"SOFT" 100;color:var(--muted-fg)}
+.g-opt.on .g-glyph{background:var(--bg);color:var(--accent)}
+.g-opt-name{flex:1;min-width:0;font:500 22px/1.3 var(--font-display);font-variation-settings:"SOFT" 100}
+.g-radio{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);color:var(--bg)}
+.g-opt.on .g-radio{background:var(--accent);border-color:var(--accent)}
+.g-radio .tick{width:16px;height:16px;margin:0;opacity:0}
+.g-opt.on .g-radio .tick{opacity:1}
+/* each name is set in its own script's font, whatever the app language is */
+.g-glyph[lang=en],.g-opt-name[lang=en]{font-family:var(--font-display)}
+.g-glyph[lang=hi],.g-opt-name[lang=hi]{font-family:"Tiro Devanagari Hindi","Hind","Noto Sans Devanagari",serif;letter-spacing:0}
+.g-glyph[lang=as],.g-opt-name[lang=as]{font-family:"Tiro Bangla","Hind Siliguri","Noto Sans Bengali",serif;letter-spacing:0}
+@media (max-height:640px){.g-opt{min-height:62px}.g-glyph{width:40px;height:40px;font-size:20px}.g-opt-name{font-size:20px}}
 @media (max-height:640px){.g-total{font-size:44px;margin-top:8px}.g-copy{padding-bottom:10px}.g-copy h1{font-size:26px}}

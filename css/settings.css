@@ -14,3 +14,6 @@
 .rowbtn.danger{color:var(--danger);font-weight:600}
 .danger-zone{margin-top:40px}
 .foot{margin:20px 0 8px;text-align:center;font-size:13px;color:var(--muted-fg)}
+/* each language name in its own script's font, whatever the app language is */
+.opts span[lang=hi]{font-family:"Hind","Noto Sans Devanagari",sans-serif}
+.opts span[lang=as]{font-family:"Hind Siliguri","Noto Sans Bengali",sans-serif}

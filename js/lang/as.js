@@ -129,9 +129,10 @@ export const assamese = {
   settingsBillLangApp: 'এপৰ ভাষাৰ দৰে',
 
   settingsTitle: 'ছেটিংছ',
-  settingsMilkman: 'গাখীৰৱালা',      // ৱ U+09F1
+  settingsMilkman: 'গাখীৰৱালা আৰু বিল',      // ৱ U+09F1
   settingsPrice: 'প্ৰতিদিনৰ দাম',
-  settingsTracking: 'ট্ৰেকিং',
+  settingsPreferences: 'পছন্দ',
+  settingsAppLanguage: 'এপৰ ভাষা',
   settingsYourData: 'আপোনাৰ ডেটা',
   settingsHelp: 'সহায়',
   settingsNameLabel: 'নাম',

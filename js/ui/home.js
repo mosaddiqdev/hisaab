@@ -1,10 +1,12 @@
 import { state, save } from '../store.js';
-import { ui, refresh, openSheet, haptic, HAPTIC, invalid, flash } from './state.js';
+import { ui, refresh, openSheet, haptic, HAPTIC, invalid, flash, fadeSwap } from './state.js';
 import { monthPrice, hasOwnPrice, dayInfo, monthSummary, setDay } from '../logic.js';
 import { ymd, ym, monthName, dayLabel, daysInMonth, dowShort } from '../utils/date.js';
 import { fmt, num, normalizeDigits } from '../utils/format.js';
 import { t, nPlural, arr } from '../i18n.js';
 import { digits, animateRoll } from './roll.js';
+
+const KINDS = ['normal', 'missed', 'special'];
 
 function weekStrip(today) {
   let out = '';
@@ -15,8 +17,13 @@ function weekStrip(today) {
       continue;
     }
     const mark = info.kind === 'special' ? fmt(info.amount) : info.kind === 'missed' ? '✕' : '';
-    out += `<button class="wd ${info.kind} ${i === 0 ? 'today' : ''} ${k === ui.changed ? 'pop' : ''}" data-act="openDay" data-day="${k}" aria-label="${dayLabel(dt)}">
-      <small>${dowShort(dt)}</small><span class="dot">${dt.getDate()}</span><em>${mark}</em></button>`;
+    // The day that just changed is drawn as it WAS, then enter() flips it to how it IS, so the circle's colour fades
+    // instead of jumping. (This runs before the old screen is replaced, so the old circle can still be read.)
+    const old = k === ui.changed ? document.querySelector(`.wd[data-day="${k}"]`) : null;
+    const oldKind = old && KINDS.find(c => old.classList.contains(c)), oldMark = old ? old.querySelector('em').textContent : mark;
+    const flip = old && (oldKind !== info.kind || oldMark !== mark);
+    out += `<button class="wd ${flip ? oldKind : info.kind} ${i === 0 ? 'today' : ''}" ${flip ? `data-flip="${info.kind}" data-mark="${mark}"` : ''} data-act="openDay" data-day="${k}" aria-label="${dayLabel(dt)}">
+      <small>${dowShort(dt)}</small><span class="dot">${dt.getDate()}</span><em>${flip ? oldMark : mark}</em></button>`;
   }
   return `<div class="week">${out}</div>`;
 }
@@ -27,7 +34,10 @@ export function render() {
   const sum = monthSummary(y, m), info = dayInfo(now);
   const cur = info.kind === 'normal' ? 0 : info.kind === 'missed' ? 1 : -1, shown = ui.lastSeg ?? cur;
   const startPos = shown >= 0 ? shown : Math.max(cur, 0), at = i => (i === 1 ? 'calc(100% + 4px)' : '0');
-  const swap = ui.changed === ymd(now) ? 'swap' : '';
+  const amtText = info.kind === 'missed' ? t('noMilk') : fmt(info.amount);
+  const oldAmt = document.querySelector('.today-amt');
+  const amtFlip = oldAmt && ui.changed === ymd(now) && oldAmt.textContent !== amtText;
+  const oldAmtKind = amtFlip ? KINDS.find(c => oldAmt.classList.contains(c)) || '' : '';
   const estimate = sum.total + (n - d) * price;
   const specialBit = sum.special ? nPlural('specialDays', sum.special) : '';
   const missedBit = state.trackMissed && sum.missed ? nPlural('missedDays', sum.missed) : '';
@@ -51,7 +61,7 @@ export function render() {
     <div class="sec-head"><h2>${t('thisWeek')}</h2><button class="link" data-act="tab" data-tab="calendar">${t('monthLink')}</button></div>
     ${weekStrip(now)}
     <div class="dock">
-      <div class="dock-top"><p><span class="eyebrow">${t('todayLabel')}</span><b class="today-amt ${info.kind} ${swap}">${info.kind === 'missed' ? t('noMilk') : fmt(info.amount)}</b></p>
+      <div class="dock-top"><p><span class="eyebrow">${t('todayLabel')}</span><b class="today-amt ${amtFlip ? oldAmtKind : info.kind}" ${amtFlip ? `data-flip="${info.kind}" data-text="${amtText}"` : ''}>${amtFlip ? oldAmt.textContent : amtText}</b></p>
         ${state.trackMissed ? `<button class="link" data-act="other">${t('changePrice')}</button>` : ''}</div>
       ${state.trackMissed ? `<div class="seg" role="group" aria-label="${t('todaysMilk')}">
         <i class="thumb" data-cur="${cur}" data-pos="${cur >= 0 ? cur : startPos}" data-op="${cur >= 0 ? 1 : 0}" style="transform:translateX(${at(startPos)});opacity:${shown >= 0 ? 1 : 0}"></i>
@@ -84,6 +94,20 @@ export function enter() {
     th.style.opacity = th.dataset.op;
     b[0].setAttribute('aria-pressed', cur === 0); b[1].setAttribute('aria-pressed', cur === 1);
     ui.lastSeg = cur;
+  }
+  // Everything that changed moves at the same moment as the pill: circle colour, the mark under it, and the amount text.
+  document.querySelectorAll('.wd[data-flip]').forEach(el => {
+    const kind = el.dataset.flip, mark = el.dataset.mark, em = el.querySelector('em');
+    void el.offsetWidth;
+    el.classList.remove(...KINDS); el.classList.add(kind);   // the circle's colours transition (see motion.css)
+    if (em.textContent !== mark) fadeSwap(em, () => { em.textContent = mark; });
+    el.removeAttribute('data-flip');
+  });
+  const amt = document.querySelector('.today-amt[data-flip]');
+  if (amt) {
+    const kind = amt.dataset.flip, text = amt.dataset.text;
+    fadeSwap(amt, () => { amt.classList.remove(...KINDS); amt.classList.add(kind); amt.textContent = text; });
+    amt.removeAttribute('data-flip');
   }
   const box = document.querySelector('.amount .num');
   if (box) { animateRoll(box, ui.rollFromZero ? 250 : 0); ui.rollFromZero = false; ui.lastNum = box.dataset.str; }
