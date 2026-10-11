@@ -31,8 +31,3 @@ h2{font-size:17px;font-weight:600;margin:28px 0 8px}
 .muted,.hint{color:var(--muted-fg);font-size:14px}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
-/* Ripple (js/ui/ripple.js): flat, no shadow. Hosts clip it to their own shape. */
-.ripple{position:absolute;border-radius:50%;background:var(--accent);pointer-events:none}
-.ripple.light{background:var(--bg)}
-.btn,.rowbtn,.pill,.icon-btn,.seg button,.opts button,.link,.inline,.g-opt,.wd .dot,.cd .dot{position:relative;overflow:hidden}
-.link{border-radius:10px}.inline{border-radius:8px}

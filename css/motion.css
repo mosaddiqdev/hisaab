@@ -1,14 +1,15 @@
 /* Motion: short, purposeful, ease-out. Each animation explains a change; nothing loops or decorates.
    Reduced motion switches everything off (base.css). */
 
-/* Press feedback is the flat ripple (js/ui/ripple.js). Nothing shrinks or zooms when pressed. */
-.btn,.link,.pill,.inline,.icon-btn,.wd,.cd,.seg button,.opts button,.rowbtn{transition:opacity .15s,background-color .15s,color .2s}
+/* Press feedback, 50-100ms: everything pressable shrinks a little, except the one that is already active/selected */
+.btn,.link,.pill,.inline,.icon-btn,.tab,.wd,.cd,.seg button,.opts button,.rowbtn,.g-opt{transition:transform .1s,opacity .15s,background-color .15s,color .2s}
+:is(.btn,.link,.pill,.inline,.icon-btn,.tab,.wd,.cd,.seg button,.opts button,.rowbtn,.g-opt):not([aria-current=page],[aria-pressed=true],[aria-checked=true]):active{transform:scale(.96)}
 .rowbtn:active{background:var(--muted)}
 
 /* Tab bar: no zoom or bounce. The pill slides to the new tab while the columns resize together (same curve and time),
    and the name fades in once the tab has room for it. The bar itself is never rebuilt, so this always runs to the end. */
 .tab-ind,#tabs{transition-property:transform,grid-template-columns;transition-duration:.38s;transition-timing-function:cubic-bezier(.32,.72,0,1)}
-.tab{transition:color .2s}
+.tab{transition:transform .1s,color .2s}
 .tab svg{transition:color .2s}
 .tab .lbl{transition:max-width .38s cubic-bezier(.32,.72,0,1),margin-left .38s cubic-bezier(.32,.72,0,1),opacity .12s}
 .tab[aria-current=page] .lbl{transition:max-width .38s cubic-bezier(.32,.72,0,1),margin-left .38s cubic-bezier(.32,.72,0,1),opacity .18s .16s}

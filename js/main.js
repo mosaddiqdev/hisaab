@@ -7,7 +7,6 @@ import * as calendar from './ui/calendar.js';
 import * as settings from './ui/settings.js';
 import * as sheet from './ui/sheet.js';
 import * as guide from './ui/guide.js';
-import { ripple, initRipples } from './ui/ripple.js';
 
 const TABS = [['home', home], ['calendar', calendar], ['settings', settings]];
 const view = document.getElementById('view'), tabs = document.getElementById('tabs'), overlay = document.getElementById('overlay-root');
@@ -59,28 +58,6 @@ document.addEventListener('refresh', draw);
 // Listen for language changes: re-render the current screen with new language
 document.addEventListener('langchange', e => {
   state.lang = e.detail.lang; save(); draw();
-});
-
-initRipples(); // every other button in the app
-
-// ---- Tab bar ripple: lives inside the active pill only.
-// Touch the active tab: a flat ripple starts under your finger, holds while you press, and fades when you let go.
-// Touch another tab: the pill slides over, and a ripple opens from its centre as it lands.
-const pill = tabs.querySelector('.tab-ind');
-tabs.addEventListener('pointerdown', e => {
-  const tab = e.target.closest('.tab');
-  if (!tab || tab.getAttribute('aria-current') !== 'page') return;
-  const r = pill.getBoundingClientRect(), release = ripple(pill, e.clientX - r.left, e.clientY - r.top, { held: true });
-  ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => tab.addEventListener(n, release, { once: true }));
-});
-let landed = ui.tab;
-document.addEventListener('navchange', () => {
-  if (ui.tab === landed) return;
-  landed = ui.tab;
-  let done = false;
-  const land = () => { if (done) return; done = true; ripple(pill, pill.clientWidth / 2, pill.clientHeight / 2); };
-  pill.addEventListener('transitionend', e => { if (e.propertyName === 'transform') land(); }, { once: true });
-  setTimeout(land, 480); // if the slide is skipped (reduced motion), still settle
 });
 
 // ---- Taps
