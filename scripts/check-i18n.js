@@ -235,6 +235,7 @@ const UI_FILES = [
   join(ROOT, 'js', 'main.js'),
   join(ROOT, 'js', 'ui', 'home.js'),
   join(ROOT, 'js', 'ui', 'calendar.js'),
+  join(ROOT, 'js', 'bill.js'),
   join(ROOT, 'js', 'ui', 'settings.js'),
   join(ROOT, 'js', 'ui', 'sheet.js'),
   join(ROOT, 'js', 'ui', 'guide.js'),
@@ -248,7 +249,7 @@ const UI_FILES = [
 // Collect all referenced keys from t('key') and arr('key') patterns
 const referencedKeys = new Set();
 // Also match nPlural('key', ...) and bt('key', ...) patterns
-// bt() is the local alias for t() used inside billText() in calendar.js
+// bt() is the local alias for t() used inside billText() in bill.js
 const T_PATTERN = /\b(?:t|bt)\s*\(\s*['"](\w+)['"]/g;
 const ARR_PATTERN = /\b(?:arr|ba)\s*\(\s*['"](\w+)['"]/g;
 const NPLURAL_PATTERN = /\bnPlural\s*\(\s*['"](\w+)['"]/g;

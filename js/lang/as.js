@@ -63,6 +63,7 @@ export const assamese = {
   calTodayPill: 'আজি',
   calSelectDays: 'দিন বাছক',
   calShareBill: 'বিল শ্বেয়াৰ কৰক',
+  calCopyBill: 'বিল কপি কৰক',
   calSelectedDays_one: '{n} দিন বাছনি হৈছে',
   calSelectedDays_other: '{n} দিন বাছনি হৈছে',
   calTapTheDays: 'আপুনি যিবোৰ দিন বাছিব বিচাৰে, সেই দিনবোৰত টেপ কৰক',
@@ -87,8 +88,8 @@ export const assamese = {
   billTitle: 'গাখীৰৰ বিল',
   billPeriod: '{month} {year} ({range})',
   billShare: 'দৈনিক গাখীৰৰ হিচাপ ৰাখক, বিনামূলীয়া:',
-  billPrice: 'দাম: প্ৰতিদিন {amount}',
-  billDelivered: 'ডেলিভাৰি: {days} দিন',    // ৰ U+09F0
+  billDays_one: '{n} দিন × {price} = {amount}',
+  billDays_other: '{n} দিন × {price} = {amount}',
   billNoMilk_one: 'গাখীৰ নাহিল: {n} দিন ({dates} {mon})',
   billNoMilk_other: 'গাখীৰ নাহিল: {n} দিন ({dates} {mon})',
   billSpecial: 'বিশেষ দাম: {items}',
@@ -235,11 +236,11 @@ export const assamese = {
   settingsPriceChanges: '{month}ত দামৰ সলনি',
   settingsPriceFrom: '{date}ৰ পৰা',
   settingsPriceChangeRemove: '{date}ৰ পৰা দামৰ সলনি আঁতৰাওক',
-  billPriceFrom: '{date}ৰ পৰা: প্ৰতিদিন {amount}',
+  billFrom: '{date}ৰ পৰা',
 
   // ── Milkman phone / WhatsApp ──────────────────────────────────────────────
-  settingsPhoneLabel: 'গাখীৰৱালাৰ ফোন নম্বৰ',
-  settingsPhoneHint: 'ইয়াৰ দ্বাৰা বিল WhatsApp ত পঠিয়াব পাৰিব।',
+  settingsPhoneLabel: 'গাখীৰৱালাৰ WhatsApp নম্বৰ',
+  settingsPhoneHint: 'ঐচ্ছিক। বিল পোনপটীয়াকৈ তেওঁৰ চেটত খোলিব। খালী ৰাখিলে প্ৰতিবাৰ সম্পৰ্ক বাছিব লাগিব।',
   settingsBillLinkLabel: 'বিলত এপৰ লিংক যোগ কৰক',
   settingsBillLinkHint: 'শেষত এটা চমুকৈ আমন্ত্ৰণ আৰু লিংক যোগ হ\'ব। WhatsApp এ ইয়াক প্ৰিভিউ কাৰ্ডত দেখুৱাব।',
   toastPhoneInvalid: 'শুদ্ধ ফোন নম্বৰ দিয়ক',

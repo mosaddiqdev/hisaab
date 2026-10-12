@@ -31,7 +31,9 @@
 .inline{border:0;background:none;padding:6px 0;font-size:13px;color:var(--muted-fg)}
 .inline b{margin-left:4px;font-weight:600;color:var(--fg);text-decoration:underline;text-underline-offset:3px}
 .inline.warn{font-weight:600;color:var(--accent)}
-.cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:20px}
+.cal-actions{display:grid;grid-template-columns:1fr 48px;gap:8px;margin-top:auto;padding-top:20px}
 .cal-actions .btn{margin-top:0;min-height:48px}
-.cal-actions .btn:only-child,.cal-actions .wa{grid-column:1/-1}
+.cal-actions .share{padding:0}
+.cal-actions .share svg{width:22px;height:22px}
+.cal-actions .sel{grid-column:1/-1}
 .cal .dock{margin-top:auto}

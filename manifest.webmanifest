@@ -22,31 +22,31 @@
   "theme_color": "#faf9f6",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "icons/pwa/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "icons/pwa/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-maskable-192.png",
+      "src": "icons/pwa/icon-maskable-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "icons/icon-maskable-512.png",
+      "src": "icons/pwa/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "icons/icon-monochrome-512.png",
+      "src": "icons/pwa/icon-monochrome-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "monochrome"
@@ -66,7 +66,7 @@
       "url": "./?action=missed",
       "icons": [
         {
-          "src": "icons/shortcut-nomilk.png",
+          "src": "icons/shortcuts/no-milk.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -79,7 +79,7 @@
       "url": "./?action=came",
       "icons": [
         {
-          "src": "icons/shortcut-came.png",
+          "src": "icons/shortcuts/milk-came.png",
           "sizes": "192x192",
           "type": "image/png"
         }
@@ -92,11 +92,27 @@
       "url": "./?tab=calendar",
       "icons": [
         {
-          "src": "icons/shortcut-calendar.png",
+          "src": "icons/shortcuts/calendar.png",
           "sizes": "192x192",
           "type": "image/png"
         }
       ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshot-mobile.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Today's total, a month-end forecast and a one-tap Milk came control"
+    },
+    {
+      "src": "assets/screenshot-desktop.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The month calendar with the bill so far and a Send on WhatsApp button"
     }
   ]
 }

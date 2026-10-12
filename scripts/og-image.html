@@ -1,65 +1,38 @@
 <!doctype html>
-<!-- Source of icons/og-image.png (1200x630). Rebuild: node scripts/build-og.mjs   (needs `npm i -D playwright` + a Chromium)
-     or open this file in Chrome at exactly 1200x630 and screenshot it. Then keep the PNG under 300 KB (WhatsApp's practical limit).
-
-     Design rules (from OG research):
-       - Every platform centre-crops. X shows 2:1 and WhatsApp may show a SQUARE thumbnail, so everything that matters
-         (icon, name, headline) lives in the centre 630x630 (x 285..915). The calendar fragments at the edges are decoration only.
-       - Text is large (>= 22px at 1200 wide) so it still reads when the card is shown ~500px wide in a feed.
-       - Colours and fonts are the app's own (css/tokens.css). Brand mark = icons/icon.svg. -->
-<html lang="en"><head><meta charset="utf-8"><title>Hisaab OG image</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,500..600,0..100&family=Inter:wght@500;600&family=Hind:wght@500;600&family=Hind+Siliguri:wght@500;600&display=swap">
+<html lang="en"><head><meta charset="utf-8"><title>Hisaab link preview</title>
+<!-- Source of assets/og-image.png (1200x630). Build: node scripts/build-og.mjs (it fills in the phone screenshot).
+     What it must do, from the research: a headline big enough to read at ~400px wide, the brand mark, one real product visual,
+     all inside the central 1080x600 with 60px+ to every edge. The phone may bleed off the bottom: it is decoration, the content is above.
+     Fonts are self-hosted (../fonts) so this builds offline and always matches the app. Keep the PNG under WhatsApp's 300 KB. -->
+<link rel="stylesheet" href="../css/fonts.css">
 <style>
-:root{--bg:#faf9f6;--fg:#1c1c1e;--muted:#f1efea;--muted-fg:#6b6b6f;--border:#e5e2db;--accent:#5b8fd9;--accent-soft:#eaf1fb;--danger:#c0444d;--danger-soft:#fbeceb}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{width:1200px;height:630px;overflow:hidden;background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-.stage{position:relative;width:1200px;height:630px;overflow:hidden}
-
-/* soft colour behind everything */
-.glow{position:absolute;border-radius:50%;filter:blur(2px)}
-.g1{width:640px;height:640px;right:-250px;top:-300px;background:radial-gradient(closest-side,var(--accent-soft),transparent)}
-.g2{width:560px;height:560px;left:-240px;bottom:-290px;background:radial-gradient(closest-side,var(--danger-soft),transparent)}
-
-/* calendar fragments: decoration at the edges, faded out before the safe square */
-.cal{position:absolute;top:58px;width:340px;display:grid;grid-template-columns:repeat(4,64px);gap:0 16px}
-.cal.l{left:26px;-webkit-mask-image:linear-gradient(90deg,#000 0,#000 38%,transparent 88%);mask-image:linear-gradient(90deg,#000 0,#000 38%,transparent 88%)}
-.cal.r{right:26px;justify-content:end;-webkit-mask-image:linear-gradient(270deg,#000 0,#000 38%,transparent 88%);mask-image:linear-gradient(270deg,#000 0,#000 38%,transparent 88%)}
-.c{display:flex;flex-direction:column;align-items:center;height:104px}
-.cal.r .c{opacity:1}
-.c b{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--muted);color:#6b6b6f;font:500 25px/1 'Inter',sans-serif}
-.c em{height:16px;margin-top:7px;font:600 14px/16px 'Inter',sans-serif;font-style:normal}
-.c.miss b{background:var(--danger-soft);color:var(--danger);font-weight:600}.c.miss em{color:var(--danger)}
-.c.spec b{background:var(--accent-soft);color:var(--accent);font-weight:700}.c.spec em{color:var(--accent)}
-.c.today b{color:var(--fg);box-shadow:0 0 0 4px var(--bg),0 0 0 6px var(--fg)}
-
-/* centre column: the part every crop keeps */
-.col{position:absolute;left:285px;width:630px;top:0;height:630px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.brand{display:flex;align-items:center;gap:22px}
-.brand img{width:104px;height:104px;border-radius:26px;box-shadow:0 14px 30px rgba(28,28,30,.22)}
-.name{font:600 76px/1 'Fraunces',Georgia,serif;font-variation-settings:"SOFT" 100,"opsz" 96;letter-spacing:-.025em}
-h1{margin-top:30px;font:500 82px/1.07 'Fraunces',Georgia,serif;font-variation-settings:"SOFT" 100,"opsz" 144;letter-spacing:-.03em}
-h1 em{font-style:normal;color:var(--accent)}
-.sub{margin-top:20px;max-width:560px;font:500 27px/1.28 'Inter',sans-serif;color:var(--muted-fg)}
-.chips{margin-top:28px;display:flex;gap:12px}
-.chip{padding:11px 17px;border-radius:999px;background:#fff;border:1.5px solid var(--border);font:600 22px/1 'Inter',sans-serif;color:var(--fg);white-space:nowrap}
-.chip .hi{font-family:'Hind','Noto Sans Devanagari',sans-serif;font-weight:500}
-.chip .as{font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif;font-weight:500}
-.chip i{font-style:normal;color:var(--border);padding:0 7px}
-</style></head><body>
-<div class="stage">
-  <div class="glow g1"></div><div class="glow g2"></div>
-  <div class="cal l" id="L"></div><div class="cal r" id="R"></div>
-  <div class="col">
-    <div class="brand"><img src="../icons/icon.svg" alt=""><span class="name">Hisaab</span></div>
-    <h1>Your milk bill<br><em>sorted</em></h1>
-    <p class="sub">Tap a day when it is different · Share the total with your milkman</p>
-    <div class="chips"><span class="chip">No account</span><span class="chip">Works offline</span><span class="chip">English<i>·</i><span class="hi">हिंदी</span><i>·</i><span class="as">অসমীয়া</span></span></div>
-  </div>
-</div>
-<script>
-// [number, state, label]; the circles echo the app's calendar: grey day, red "no milk", blue special price, today's ring
-const cell = ([n, k, l]) => `<div class="c ${k || ''}"><b>${n}</b><em>${l || ''}</em></div>`;
-document.getElementById('L').innerHTML = [[3],[4],[5],[6],[10],[11,'miss','✕'],[12],[13],[17],[18],[19,'spec','₹60'],[20],[24],[25],[26],[27],[31],[1],[2],[3]].map(cell).join('');
-document.getElementById('R').innerHTML = [[7],[8],[9,'spec','₹45'],[10],[14],[15],[16],[17],[21],[22,'miss','✕'],[23],[24],[28],[29],[30],[31],[4],[5],[6,'today'],[7]].map(cell).join('');
-</script>
+:root{--bg:#faf9f6;--ink:#1c1c1e;--muted:#6b6b6f;--accent:#5b8fd9}
+*{box-sizing:border-box;margin:0}
+html,body{width:1200px;height:630px;overflow:hidden}
+body{position:relative;font-family:'Inter',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;background:
+  radial-gradient(640px 640px at 83% 42%,#e3ecfa 0%,rgba(227,236,250,0) 72%),
+  radial-gradient(620px 420px at 0% 100%,#f7ece7 0%,rgba(247,236,231,0) 70%),var(--bg)}
+.brand{position:absolute;left:96px;top:70px;display:flex;align-items:center;gap:14px}
+.brand img{width:52px;height:52px;border-radius:13px;box-shadow:0 6px 16px -6px rgba(28,28,30,.45)}
+.brand b{font:500 38px/1 'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 100;letter-spacing:-.02em}
+h1{position:absolute;left:92px;top:168px;font:500 92px/1.02 'Fraunces',Georgia,serif;font-variation-settings:'SOFT' 100;letter-spacing:-.032em}
+h1 em{position:relative;font-style:normal;color:var(--accent)}
+h1 em svg{position:absolute;left:2%;bottom:-6px;width:96%;height:16px;overflow:visible}
+.sub{position:absolute;left:96px;top:392px;width:600px;font:500 32px/1.38 'Inter';color:var(--muted);letter-spacing:-.005em}
+.foot{position:absolute;left:96px;top:546px;display:flex;align-items:center;gap:14px;font:500 21px/1 'Inter';color:#86868a}
+.foot i{width:4px;height:4px;border-radius:50%;background:#c5c2ba}
+.foot .hi{font-family:'Hind','Noto Sans Devanagari',sans-serif;font-size:23px}
+.foot .as{font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif;font-size:23px}
+.phone{position:absolute;left:790px;top:86px;width:344px;height:700px;padding:9px;border-radius:56px;background:#1c1c1e;
+  box-shadow:0 0 0 1.5px #3b3b3e,0 50px 80px -28px rgba(28,28,30,.42),0 18px 30px -18px rgba(28,28,30,.35)}
+.screen{position:relative;height:100%;border-radius:47px;overflow:hidden;background:var(--bg)}
+.screen img{display:block;width:100%;margin-top:30px} /* room for the notch: it must never cover the app's title */
+.screen::after{content:"";position:absolute;left:50%;top:9px;width:84px;height:23px;margin-left:-42px;border-radius:12px;background:#1c1c1e}
+</style></head>
+<body>
+  <div class="brand"><img src="../icons/icon.svg" alt=""><b>Hisaab</b></div>
+  <h1>Your milk bill,<br><em>sorted.<svg viewBox="0 0 300 16" preserveAspectRatio="none"><path d="M3 11 C 55 2, 110 15, 168 7 S 266 4, 297 10" fill="none" stroke="#5b8fd9" stroke-width="5.5" stroke-linecap="round"/></svg></em></h1>
+  <p class="sub">Tap a day when it’s different.<br>Share the total with your milkman.</p>
+  <div class="foot"><span>No account</span><i></i><span>Works offline</span><i></i><span>English</span><i></i><span class="hi">हिंदी</span><i></i><span class="as">অসমীয়া</span></div>
+  <div class="phone"><div class="screen"><img id="shot" alt=""></div></div>
 </body></html>

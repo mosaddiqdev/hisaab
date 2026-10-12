@@ -1,11 +1,15 @@
 import { state, save } from '../store.js';
 import { ui, refresh, openSheet, toast, haptic, HAPTIC, goTab, fadeSwap } from './state.js';
-import { dayInfo, monthSummary, monthPrice, monthChanges, hasOwnPrice, bulkSet, setDay, canPrev, canNext } from '../logic.js';
-import { ymd, daysInMonth, monthName, shortDate } from '../utils/date.js';
+import { dayInfo, monthSummary, monthPrice, hasOwnPrice, bulkSet, setDay, canPrev, canNext } from '../logic.js';
+import { ymd, daysInMonth, monthName } from '../utils/date.js';
 import { fmt, num, waNumber } from '../utils/format.js';
 import { t, nPlural, arr, lang } from '../i18n.js';
 import { digits, animateRoll } from './roll.js';
+import { billText } from '../bill.js';
+import { icons } from './icons.js';
 
+// Phones have a share sheet (WhatsApp, SMS, Telegram, Copy...). Where there is none, the button copies, and its icon says so.
+const CAN_SHARE = typeof navigator !== 'undefined' && !!navigator.share;
 const KINDS = ['normal', 'missed', 'special'];
 const keyOf = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
@@ -17,6 +21,7 @@ function figures(y, m, now) {
 }
 
 export function render() {
+  const shareLabel = CAN_SHARE ? t('calShareBill') : t('calCopyBill');
   const DOW = arr('dowShort');
   const [sy, sm] = state.startMonth.split('-').map(Number);
   if (ui.cursor < new Date(sy, sm - 1, 1)) ui.cursor = new Date(sy, sm - 1, 1);
@@ -67,8 +72,9 @@ export function render() {
         ${state.trackMissed ? `<button class="btn btn-outline" data-act="selMissed" ${n ? '' : 'disabled'}>${t('noMilk')}</button>` : ''}
         <button class="btn" data-act="selPrice" ${n ? '' : 'disabled'}>${t('setPrice')}</button>
         <button class="btn btn-outline" data-act="selNormal" ${n ? '' : 'disabled'}>${t('normal')}</button></div></div>`
-    : `<div class="cal-actions">${future ? '' : `<button class="btn wa" data-act="whatsapp" data-y="${y}" data-m="${m}">${t('calWhatsApp')}</button>`}<button class="btn btn-outline" data-act="selectMode">${t('calSelectDays')}</button>
-      ${future ? '' : `<button class="btn btn-outline" data-act="share" data-y="${y}" data-m="${m}">${t('calShareBill')}</button>`}</div>`}
+    : `<div class="cal-actions">${future ? '' : `<button class="btn wa" data-act="whatsapp" data-y="${y}" data-m="${m}">${t('calWhatsApp')}</button>
+      <button class="btn btn-outline share" data-act="share" data-y="${y}" data-m="${m}" aria-label="${shareLabel}" title="${shareLabel}">${icons[CAN_SHARE ? 'share' : 'copy']}</button>`}
+      <button class="btn btn-outline sel" data-act="selectMode">${t('calSelectDays')}</button></div>`}
   </section>`;
 }
 
@@ -92,36 +98,8 @@ function appUrl() {
   return origin + pathname.replace(/index\.html$/, '');
 }
 
-// Statement style: title, period, a rule, the facts, a rule, the total, then an invite line with the app link.
-// { bold } wraps the title and total in *asterisks* for WhatsApp; other apps would show the asterisks, so plain text is the default.
-function billText(y, m, { bold = false } = {}) {
-  const billLang = (state.billLang && state.billLang !== 'app') ? state.billLang : lang();
-  const bt = (key, vars) => t(key, vars, billLang);
-  const ba = key => arr(key, billLang);
-  const strong = s => (bold ? `*${s}*` : s);
-
-  const now = new Date(), { cur, s } = figures(y, m, now), lim = ymd(cur ? now : new Date(y, m + 1, 0));
-  const mon = ba('monthsShort')[m];
-  const fullMonthName = ba('monthsLong')[m];
-  const missed = [], special = [];
-  for (let d = 1; d <= daysInMonth(y, m) && ymd(new Date(y, m, d)) <= lim; d++) {
-    const i = dayInfo(new Date(y, m, d));
-    if (i.kind === 'missed') missed.push(d);
-    if (i.kind === 'special') special.push(`${d} ${mon} ${fmt(i.amount)}`);
-  }
-  const rule = '──────────', price = keyOf(y, m);
-  const lines = [strong(bt('billTitle')), bt('billPeriod', { month: fullMonthName, year: y, range: `1–${cur ? now.getDate() : daysInMonth(y, m)} ${mon}` }), rule];
-  lines.push(bt('billPrice', { amount: fmt(monthPrice(price)) }));
-  for (const [d, v] of monthChanges(price)) if (d <= lim) lines.push(bt('billPriceFrom', { date: shortDate(d, billLang), amount: fmt(v) })); // mid-month price changes
-  lines.push(bt('billDelivered', { days: s.days - s.missed }));
-  if (state.trackMissed && missed.length) lines.push(nPlural('billNoMilk', missed.length, billLang).replace('{dates}', missed.join(', ')).replace('{mon}', mon));
-  if (special.length) lines.push(bt('billSpecial', { items: special.join(', ') }));
-  lines.push(rule, strong(bt('billTotal', { amount: fmt(s.total) })));
-  // Invite line + bare link on its own line, so WhatsApp turns it into a preview card (title, picture) like other sites' share links.
-  const url = state.billLink !== false ? appUrl() : '';
-  if (url) lines.push('', bt('billShare'), url);
-  return lines.join('\n');
-}
+// The bill text lives in js/bill.js (no DOM, so it can be tested). Here we only add the app link.
+const billFor = (el, opts) => billText(+el.dataset.y, +el.dataset.m, { ...opts, link: state.billLink !== false ? appUrl() : '' });
 
 const go = n => {
   const key = keyOf(ui.cursor.getFullYear(), ui.cursor.getMonth());
@@ -165,12 +143,12 @@ export const actions = {
   editPrice(el) { ui.settingsMonth = el.dataset.key; goTab('settings'); },
   // Opens WhatsApp with the bill written out. With the milkman's number it opens his chat; without, WhatsApp asks who to send it to.
   whatsapp(el) {
-    const text = billText(+el.dataset.y, +el.dataset.m, { bold: true }), to = waNumber(state.milkmanPhone);
+    const text = billFor(el, { bold: true }), to = waNumber(state.milkmanPhone);
     haptic(HAPTIC.SELECT);
     window.open(`https://wa.me/${to}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
   },
   async share(el) {
-    const text = billText(+el.dataset.y, +el.dataset.m);
+    const text = billFor(el);
     try {
       if (navigator.share) { await navigator.share({ title: t('appName'), text }); haptic(HAPTIC.SELECT); }
       else { await navigator.clipboard.writeText(text); haptic(HAPTIC.SELECT); toast.success(t('calBillCopied')); }

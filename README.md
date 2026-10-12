@@ -1,129 +1,94 @@
-# Hisaab
+<p align="center">
+  <img src="icons/pwa/icon-512.png" alt="Hisaab app icon: a milkman carrying bottles" width="96">
+</p>
 
-A PWA for tracking your daily milk bill. One price per month, tap a day when something is different, share the total with your milkman at the end of the month.
+<h1 align="center">Hisaab</h1>
 
-No account. No server. Everything lives on the phone.
+<p align="center">Your milk bill, sorted.</p>
+
+<p align="center">
+  <a href="https://tryhisaab.netlify.app"><b>Open the app</b></a> &nbsp;·&nbsp;
+  <a href="#install">Install</a> &nbsp;·&nbsp;
+  <a href="#your-data">Your data</a> &nbsp;·&nbsp;
+  <a href="docs/development.md">Development</a>
+</p>
+
+<p align="center">
+  <img src="assets/hero.png" alt="Hisaab on a desktop browser showing the month calendar, and on a phone showing this month's total and a one-tap Milk came control" width="860">
+</p>
 
 ---
 
-## What it does
+Hisaab keeps a running total of your daily milk bill. You set the price once. After that you only open the app on the days that were different, when the milk didn't come or cost something else. When you want to settle up, it writes the bill and sends it to your milkman on WhatsApp.
 
-- Sets a price per day for the month — inherited automatically if you don't change it
-- **New price from a date**: milk price hikes rarely start on the 1st. Tap a day, enter the price, choose "Use this price from this day on". Later months carry it forward; the bill lists the change
-- Tap any day to mark it as missed or give it a one-off price
-- Rolling monthly total on the home screen, always up to date
-- Share the bill as plain text, or **send it on WhatsApp** straight to the milkman's number (set it in Settings)
-- Bill language can differ from the app language (custom dropdown, keyboard accessible)
-- Backup and restore as a JSON file, with a reminder on Home when it has been a while, and a "download a backup first" option before erasing
-- Home-screen shortcuts (long-press the installed app icon): **No milk today**, **Milk came today**, **Open calendar**
-- Saves are never silent: if the phone's storage is full or blocked you get a warning. The app asks the browser to keep its storage, redraws after midnight, and offers a reload when a new version is ready
+*Hisaab* (हिसाब) means "account" or "reckoning" in Hindi and Urdu. The app works in English, हिंदी and অসমীয়া, runs offline, and has no sign-up. Everything you enter stays on your phone.
 
----
+## How it works
 
-## Run it locally
+1. Set the price per day for the month. Next month starts with the same price, so most months need no setup at all.
+2. Tap a day when something was different. Mark it as missed, or give it a one-off price. If the milkman raises his rate on the 15th, enter the new price from that day and the bill splits itself in two.
+3. Send the bill. One tap opens WhatsApp with the message ready, or you can hand it to any other app through the share sheet.
+
+This is what the milkman gets:
+
+```
+Milk bill
+October 2026 (1–26 Oct)
+──────────
+11 days × ₹20 = ₹220
+12 days × ₹25 = ₹300 (from 15 Oct)
+Special price: 9 Oct ₹60
+No milk: 2 days (3, 7 Oct)
+──────────
+Total: ₹580
+```
+
+Every line adds up to the total, so he can check it against his own notebook.
+
+## What's in it
+
+Home shows the total so far this month and a forecast for the end of it. Below that is the current week, with Milk came and Did not come as one tap each.
+
+The calendar shows the whole month. You can edit one day, or select several at once, which helps when you were away for a week. If milk never misses at your house, turn off "Track days milk did not come" in Settings and the missed-day buttons go away.
+
+The bill goes to a number you save once, or to whoever you pick if you leave it empty. The bill's language doesn't have to match the app's, so you can use the app in English and send the bill in Hindi. The bill ends with a short link to the app, which you can switch off in Settings.
+
+Backups are a JSON file you download and can restore on another phone. Home reminds you after 14 days if you've never made one, and every 30 days after your first.
+
+On Android, long-press the installed icon for three shortcuts: No milk today, Milk came today and Open calendar.
+
+## Your data
+
+Hisaab has no backend. Your entries are saved in your browser's local storage, on your phone, and nowhere else. There is no account, no analytics and no tracking. The app's code sends nothing anywhere. Search `js/` for `fetch` and you won't find a call. Even the fonts are bundled instead of loaded from Google.
+
+Two things leave the app, and only when you tap. Send on WhatsApp opens WhatsApp with the bill text. The share button hands the same text to whichever app you choose.
+
+The trade-off: if you clear your browser's site data or uninstall the app, your history goes with it. That is why backups are there.
+
+## Install
+
+Open [tryhisaab.netlify.app](https://tryhisaab.netlify.app) on your phone.
+
+- **Android (Chrome):** open the menu and tap Install app, or Add to Home screen.
+- **iPhone (Safari):** tap Share, then Add to Home Screen.
+
+It needs the internet for the first visit only. After that it opens full screen and works offline. The offline copy is about 430 KB, plus the fonts for Hindi or Assamese if you use them.
+
+## Languages
+
+English, हिंदी (Hindi) and অসমীয়া (Assamese). The Hindi and Assamese text is a first draft and needs a native speaker's eye. If something reads wrong, [open an issue](https://github.com/mosaddiqdev/hisaab/issues). Corrections are the most useful contribution right now.
+
+## Development
+
+No framework, no bundler and no runtime dependencies, just ES modules. About 170 KB of JavaScript and CSS before compression.
 
 ```
 python3 -m http.server 8080
+npm test
 ```
 
-Open `http://localhost:8080`. That's it — no build step, no bundler.
+The project structure, the scripts that generate the fonts and images, and the release steps are in [docs/development.md](docs/development.md).
 
----
+## Credits
 
-## Install on a phone
-
-Host over HTTPS (Netlify, Vercel, GitHub Pages all work), open it in the browser, tap **Add to Home Screen**.
-
-> After editing any file, bump `VERSION` in `sw.js` — installed apps won't update otherwise.
-
----
-
-## File map
-
-```
-index.html              entry point, meta tags, font links
-manifest.webmanifest    PWA manifest
-sw.js                   service worker, offline cache
-
-css/
-  tokens.css            design tokens: colours, fonts, radius
-  base.css              shell layout, tab bar, type scale
-  components.css        buttons, inputs, switch, sheets, rolling digits
-  home.css              home screen
-  calendar.css          calendar grid
-  settings.css          settings screen
-  guide.css             first-run guide
-  toast.css             toast notifications
-  motion.css            every animation in one place
-
-js/
-  main.js               event wiring, tab switching, draw loop
-  store.js              localStorage read/write
-  logic.js              pricing rules, day info, month summary
-
-js/ui/
-  home.js               home screen render + actions
-  calendar.js           calendar render + actions + bill sharing
-  settings.js           settings render + actions
-  sheet.js              day editor bottom sheet
-  guide.js              first-run onboarding flow
-  state.js              shared UI state, tab navigation
-  toast.js              toast queue
-  env.js                reduced motion, haptic feedback
-  roll.js               rolling digit animation
-  icons.js              inline SVG icons
-  select.js             custom dropdown (used for bill language)
-  backup.js             download a backup, and when to remind about it
-
-js/utils/
-  date.js               date helpers
-  format.js             number formatting
-```
-
----
-
-## Icons
-
-`icons/` has the full set:
-
-| File | Purpose |
-|---|---|
-| `icon.svg` | Master source + favicon |
-| `icon-192.png`, `icon-512.png` | Standard PWA icons |
-| `icon-maskable-192.png`, `icon-maskable-512.png` | Android adaptive icons (safe-zone padded) |
-| `icon-monochrome-512.png` | Themed/monochrome icons |
-| `apple-touch-icon.png` | iOS home screen (180×180) |
-| `favicon.ico`, `favicon-16.png`, `favicon-32.png` | Browser tab favicons |
-| `og-image.png` | Link preview image (1200×630) |
-
----
-
-## Hosting checklist
-
-- Serve over HTTPS
-- Serve `manifest.webmanifest` as `application/manifest+json`
-- Keep `sw.js` at the site root so its scope covers the whole app
-- Replace `YOUR-DOMAIN` in `index.html` with your real domain (two places: `og:image` and `twitter:image`). The image URL must be absolute, https and must not redirect
-
----
-
-## Checks
-
-```
-node scripts/check-i18n.js      translations: key parity, placeholders, scripts, digits
-node scripts/test-logic.mjs     price timeline and month totals
-```
-
-## Link preview image
-
-`scripts/og-image.html` is the source of `icons/og-image.png` (1200×630, under 300 KB). Rebuild with `node scripts/build-og.mjs` (needs `npm i -D playwright`). Rules it follows: everything important sits in the centre 630×630 because platforms centre-crop (X shows 2:1, WhatsApp may use a square thumbnail); PNG, since WhatsApp and X don't support SVG. After changing the image, bump `?v=` on the two image URLs in `index.html`, because WhatsApp caches previews hard.
-
-## i18n
-
-Run `node scripts/check-i18n.js` to validate translations. Hindi and Assamese strings are DRAFTS — see `.agents/tasks/i18n/glossary.md` for reviewer notes.
-
----
-
-## TODO
-
-- [ ] Add real `screenshots` to the manifest — need one `form_factor: "narrow"` phone screenshot and one `"wide"` desktop screenshot. This unlocks the richer install dialog on Android/Chrome.
+Built by [mosaddiqdev](https://github.com/mosaddiqdev). Type is set in Fraunces and Inter, with Hind, Hind Siliguri, Tiro Devanagari Hindi and Tiro Bangla for the Indic scripts, all under the SIL Open Font License. The licences are in [`fonts/licenses`](fonts/licenses).
