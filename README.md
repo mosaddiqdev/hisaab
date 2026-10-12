@@ -9,10 +9,14 @@ No account. No server. Everything lives on the phone.
 ## What it does
 
 - Sets a price per day for the month — inherited automatically if you don't change it
+- **New price from a date**: milk price hikes rarely start on the 1st. Tap a day, enter the price, choose "Use this price from this day on". Later months carry it forward; the bill lists the change
 - Tap any day to mark it as missed or give it a one-off price
 - Rolling monthly total on the home screen, always up to date
-- Share the bill as plain text (or copy it if the device doesn't support sharing)
-- Backup and restore as a JSON file
+- Share the bill as plain text, or **send it on WhatsApp** straight to the milkman's number (set it in Settings)
+- Bill language can differ from the app language (custom dropdown, keyboard accessible)
+- Backup and restore as a JSON file, with a reminder on Home when it has been a while, and a "download a backup first" option before erasing
+- Home-screen shortcuts (long-press the installed app icon): **No milk today**, **Milk came today**, **Open calendar**
+- Saves are never silent: if the phone's storage is full or blocked you get a warning. The app asks the browser to keep its storage, redraws after midnight, and offers a reload when a new version is ready
 
 ---
 
@@ -68,6 +72,8 @@ js/ui/
   env.js                reduced motion, haptic feedback
   roll.js               rolling digit animation
   icons.js              inline SVG icons
+  select.js             custom dropdown (used for bill language)
+  backup.js             download a backup, and when to remind about it
 
 js/utils/
   date.js               date helpers
@@ -97,9 +103,20 @@ js/utils/
 - Serve over HTTPS
 - Serve `manifest.webmanifest` as `application/manifest+json`
 - Keep `sw.js` at the site root so its scope covers the whole app
-- Replace `YOUR-DOMAIN` in `index.html` with your real domain for the og:image URL
+- Replace `YOUR-DOMAIN` in `index.html` with your real domain (two places: `og:image` and `twitter:image`). The image URL must be absolute, https and must not redirect
 
 ---
+
+## Checks
+
+```
+node scripts/check-i18n.js      translations: key parity, placeholders, scripts, digits
+node scripts/test-logic.mjs     price timeline and month totals
+```
+
+## Link preview image
+
+`scripts/og-image.html` is the source of `icons/og-image.png` (1200×630, under 300 KB). Rebuild with `node scripts/build-og.mjs` (needs `npm i -D playwright`). Rules it follows: everything important sits in the centre 630×630 because platforms centre-crop (X shows 2:1, WhatsApp may use a square thumbnail); PNG, since WhatsApp and X don't support SVG. After changing the image, bump `?v=` on the two image URLs in `index.html`, because WhatsApp caches previews hard.
 
 ## i18n
 

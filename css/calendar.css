@@ -33,5 +33,5 @@
 .inline.warn{font-weight:600;color:var(--accent)}
 .cal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:20px}
 .cal-actions .btn{margin-top:0;min-height:48px}
-.cal-actions .btn:only-child{grid-column:1/-1}
+.cal-actions .btn:only-child,.cal-actions .wa{grid-column:1/-1}
 .cal .dock{margin-top:auto}

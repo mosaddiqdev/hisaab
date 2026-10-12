@@ -60,3 +60,23 @@
 .num .strip{display:block;transform:translateY(calc(var(--n,0) * -1em))}
 .num .strip i{display:block;height:1em;line-height:1;font-style:normal;text-align:center}
 .num .c{display:inline-block;line-height:1}
+
+/* Select: dropdown list (js/ui/select.js) */
+.select-field{position:relative}
+.select{position:relative;margin-top:6px}
+.select-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:0 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--fg);font-size:16px;font-weight:400;text-align:left;transition:border-color .15s,box-shadow .15s}
+.select.open .select-btn,.select-btn:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.sel-chev{flex:none;width:20px;height:20px;fill:none;stroke:var(--muted-fg);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s cubic-bezier(.16,1,.3,1)}
+.select.open .sel-chev{transform:rotate(180deg)}
+.select-pop{position:absolute;z-index:6;left:0;right:0;top:calc(100% + 6px);max-height:260px;overflow-y:auto;margin:0;padding:4px;list-style:none;border:1px solid var(--border);border-radius:calc(var(--radius) + 2px);background:var(--bg);box-shadow:0 14px 36px rgba(0,0,0,.16);outline:none;
+  opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .15s,transform .2s cubic-bezier(.16,1,.3,1),visibility 0s .2s}
+.select.up .select-pop{top:auto;bottom:calc(100% + 6px);transform:translateY(6px)}
+.select.open .select-pop{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.select-pop [role=option]{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:0 12px;border-radius:calc(var(--radius) - 2px);font-size:16px;font-weight:400;color:var(--fg);cursor:pointer}
+.select-pop [role=option].active{background:var(--muted)}
+.select-pop [role=option][aria-selected=true]{background:var(--accent-soft);font-weight:600}
+.sel-tick{flex:none;width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+[aria-selected=true]>.sel-tick{opacity:1}
+/* each language name in its own script's font, whatever the app language is */
+.select [lang=hi]{font-family:"Hind","Noto Sans Devanagari",sans-serif}
+.select [lang=as]{font-family:"Hind Siliguri","Noto Sans Bengali",sans-serif}

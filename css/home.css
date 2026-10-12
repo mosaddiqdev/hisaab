@@ -3,6 +3,14 @@
 .eyebrow{font-size:13px;color:var(--muted-fg)}
 .title{font:500 24px/1.2 var(--font-display);letter-spacing:-.01em;font-variation-settings:"SOFT" 100}
 
+/* Backup reminder */
+.nudge{display:flex;flex-direction:column;gap:12px;margin-top:14px;padding:14px 16px;border-radius:20px;background:var(--muted)}
+.nudge b{font-weight:600}
+.nudge .hint{margin-top:2px}
+.nudge-act{display:flex;align-items:center;gap:12px}
+.nudge-act .btn{width:auto;flex:1;min-height:44px;margin:0}
+.nudge-act .link{flex:none;padding:0 8px}
+
 /* Month total */
 .hero{margin:auto 0;padding:28px 0}
 .amount{display:flex;align-items:flex-start;gap:4px;margin:6px 0 10px;font-variant-numeric:tabular-nums}

@@ -82,9 +82,9 @@ export const en = {
   legendNoMilk: 'No milk',
 
   // ── Bill text (shared via share / clipboard) ──────────────────────────────
-  billTitle: '{appName} · {month} {year}',
-  billTitleSoFar: '{appName} · {month} {year} (so far)',
-  billMilkman: 'Milkman: {name}',
+  billTitle: 'Milk bill',
+  billPeriod: '{month} {year} ({range})',
+  billShare: 'Track your daily milk bill, free:',
   billPrice: 'Price: {amount} per day',
   billDelivered: 'Delivered: {days} days',
   billNoMilk_one: 'No milk: {n} day ({dates} {mon})',
@@ -212,6 +212,40 @@ export const en = {
   dowShort: [
     'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
   ],
+
+  // ── Data safety ───────────────────────────────────────────────────────────
+  toastSaveFailed: "Could not save. Your phone's storage may be full or blocked.",
+  toastUpdateReady: 'A new version is ready',
+  reload: 'Reload',
+  backupNudgeTitle: 'Back up your data',
+  backupNudgeNever: 'Everything is saved only on this phone. Download a backup so it is never lost.',
+  backupNudgeOld: 'Your last backup was {days} days ago.',
+  backupNow: 'Back up now',
+  later: 'Later',
+  confirmEraseBackupFirst: 'Download a backup first',
+  settingsLastBackup: 'Last backup: {date}',
+  settingsNoBackup: 'No backup yet.',
+
+  // ── Price change from a date ──────────────────────────────────────────────
+  sheetPriceFromHere: 'Use this price from this day on',
+  toastPriceFrom: '{amount} a day from {date}',
+  toastPriceChangeRemoved: 'Price change removed',
+  settingsPriceChanges: 'Price changes in {month}',
+  settingsPriceFrom: 'From {date}',
+  settingsPriceChangeRemove: 'Remove the price change from {date}',
+  billPriceFrom: 'From {date}: {amount} per day',
+
+  // ── Milkman phone / WhatsApp ──────────────────────────────────────────────
+  settingsPhoneLabel: "Milkman's phone",
+  settingsPhoneHint: 'Lets you send the bill on WhatsApp.',
+  settingsBillLinkLabel: 'Add the app link to the bill',
+  settingsBillLinkHint: 'Adds a short invite and the link at the end. WhatsApp shows it as a preview card.',
+  toastPhoneInvalid: 'Enter a valid phone number',
+  calWhatsApp: 'Send on WhatsApp',
+
+  // ── Home-screen shortcuts ─────────────────────────────────────────────────
+  toastShortcutNoMilk: 'Marked no milk for today',
+  toastShortcutCame: 'Marked milk came today',
 
   // ── Saved flash confirmation ───────────────────────────────────────────────
   flashSaved: 'Saved',

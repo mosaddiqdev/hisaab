@@ -1,8 +1,8 @@
 import { state, save } from '../store.js';
 import { ui, refresh, openSheet, toast, haptic, HAPTIC, goTab, fadeSwap } from './state.js';
-import { dayInfo, monthSummary, monthPrice, hasOwnPrice, bulkSet, setDay, canPrev, canNext } from '../logic.js';
-import { ymd, daysInMonth, monthName } from '../utils/date.js';
-import { fmt, num } from '../utils/format.js';
+import { dayInfo, monthSummary, monthPrice, monthChanges, hasOwnPrice, bulkSet, setDay, canPrev, canNext } from '../logic.js';
+import { ymd, daysInMonth, monthName, shortDate } from '../utils/date.js';
+import { fmt, num, waNumber } from '../utils/format.js';
 import { t, nPlural, arr, lang } from '../i18n.js';
 import { digits, animateRoll } from './roll.js';
 
@@ -67,7 +67,7 @@ export function render() {
         ${state.trackMissed ? `<button class="btn btn-outline" data-act="selMissed" ${n ? '' : 'disabled'}>${t('noMilk')}</button>` : ''}
         <button class="btn" data-act="selPrice" ${n ? '' : 'disabled'}>${t('setPrice')}</button>
         <button class="btn btn-outline" data-act="selNormal" ${n ? '' : 'disabled'}>${t('normal')}</button></div></div>`
-    : `<div class="cal-actions"><button class="btn btn-outline" data-act="selectMode">${t('calSelectDays')}</button>
+    : `<div class="cal-actions">${future ? '' : `<button class="btn wa" data-act="whatsapp" data-y="${y}" data-m="${m}">${t('calWhatsApp')}</button>`}<button class="btn btn-outline" data-act="selectMode">${t('calSelectDays')}</button>
       ${future ? '' : `<button class="btn btn-outline" data-act="share" data-y="${y}" data-m="${m}">${t('calShareBill')}</button>`}</div>`}
   </section>`;
 }
@@ -85,11 +85,20 @@ export function enter() {
   if (box) { animateRoll(box); ui.calLast = { key: box.dataset.key, str: box.dataset.str }; }
 }
 
-function billText(y, m) {
-  // Determine the language for the bill
+// The address people can open the app at. Empty when running locally (nothing to share).
+function appUrl() {
+  const { protocol, hostname, origin, pathname } = location;
+  if (!/^https?:$/.test(protocol) || ['localhost', '127.0.0.1', '[::1]'].includes(hostname) || hostname.endsWith('.local')) return '';
+  return origin + pathname.replace(/index\.html$/, '');
+}
+
+// Statement style: title, period, a rule, the facts, a rule, the total, then an invite line with the app link.
+// { bold } wraps the title and total in *asterisks* for WhatsApp; other apps would show the asterisks, so plain text is the default.
+function billText(y, m, { bold = false } = {}) {
   const billLang = (state.billLang && state.billLang !== 'app') ? state.billLang : lang();
   const bt = (key, vars) => t(key, vars, billLang);
   const ba = key => arr(key, billLang);
+  const strong = s => (bold ? `*${s}*` : s);
 
   const now = new Date(), { cur, s } = figures(y, m, now), lim = ymd(cur ? now : new Date(y, m + 1, 0));
   const mon = ba('monthsShort')[m];
@@ -100,16 +109,17 @@ function billText(y, m) {
     if (i.kind === 'missed') missed.push(d);
     if (i.kind === 'special') special.push(`${d} ${mon} ${fmt(i.amount)}`);
   }
-  const lines = [cur ? bt('billTitleSoFar', { appName: bt('appName'), month: fullMonthName, year: y }) : bt('billTitle', { appName: bt('appName'), month: fullMonthName, year: y })];
-  if (state.milkman) lines.push(bt('billMilkman', { name: state.milkman }));
-  lines.push(bt('billPrice', { amount: fmt(monthPrice(keyOf(y, m))) }));
+  const rule = '──────────', price = keyOf(y, m);
+  const lines = [strong(bt('billTitle')), bt('billPeriod', { month: fullMonthName, year: y, range: `1–${cur ? now.getDate() : daysInMonth(y, m)} ${mon}` }), rule];
+  lines.push(bt('billPrice', { amount: fmt(monthPrice(price)) }));
+  for (const [d, v] of monthChanges(price)) if (d <= lim) lines.push(bt('billPriceFrom', { date: shortDate(d, billLang), amount: fmt(v) })); // mid-month price changes
   lines.push(bt('billDelivered', { days: s.days - s.missed }));
-  if (state.trackMissed && missed.length) {
-    const noMilkStr = nPlural('billNoMilk', missed.length, billLang).replace('{dates}', missed.join(', ')).replace('{mon}', mon);
-    lines.push(noMilkStr);
-  }
+  if (state.trackMissed && missed.length) lines.push(nPlural('billNoMilk', missed.length, billLang).replace('{dates}', missed.join(', ')).replace('{mon}', mon));
   if (special.length) lines.push(bt('billSpecial', { items: special.join(', ') }));
-  lines.push(bt('billTotal', { amount: fmt(s.total) }));
+  lines.push(rule, strong(bt('billTotal', { amount: fmt(s.total) })));
+  // Invite line + bare link on its own line, so WhatsApp turns it into a preview card (title, picture) like other sites' share links.
+  const url = state.billLink !== false ? appUrl() : '';
+  if (url) lines.push('', bt('billShare'), url);
   return lines.join('\n');
 }
 
@@ -153,6 +163,12 @@ export const actions = {
   selNormal: () => apply(null, 'toastBackToNormal'),
   selPrice() { if (ui.select.size) openSheet([...ui.select].sort()); },
   editPrice(el) { ui.settingsMonth = el.dataset.key; goTab('settings'); },
+  // Opens WhatsApp with the bill written out. With the milkman's number it opens his chat; without, WhatsApp asks who to send it to.
+  whatsapp(el) {
+    const text = billText(+el.dataset.y, +el.dataset.m, { bold: true }), to = waNumber(state.milkmanPhone);
+    haptic(HAPTIC.SELECT);
+    window.open(`https://wa.me/${to}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+  },
   async share(el) {
     const text = billText(+el.dataset.y, +el.dataset.m);
     try {

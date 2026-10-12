@@ -1,10 +1,12 @@
 import { state, save } from '../store.js';
 import { ui, refresh, toast, askConfirm, haptic, HAPTIC, invalid, flash } from './state.js';
-import { monthPrice, hasOwnPrice, canPrev, canNext } from '../logic.js';
-import { ym, monthName } from '../utils/date.js';
-import { fmt, esc, normalizeDigits } from '../utils/format.js';
+import { monthPrice, hasOwnPrice, monthChanges, canPrev, canNext } from '../logic.js';
+import { ym, monthName, shortDate, fullDate } from '../utils/date.js';
+import { fmt, esc, normalizeDigits, waNumber } from '../utils/format.js';
 import { t, nPlural, lang, setLang as i18nSetLang, arr } from '../i18n.js';
 import { mount as openGuide } from './guide.js';
+import { select } from './select.js';
+import { downloadBackup } from './backup.js';
 
 const monthKey = () => (ui.settingsMonth && ui.settingsMonth >= state.startMonth ? ui.settingsMonth : ym(new Date()));
 const shift = (key, n) => { const [y, m] = key.split('-').map(Number); return ym(new Date(y, m - 1 + n, 1)); };
@@ -32,12 +34,9 @@ export function render() {
   // App language: same sliding control as "week starts on"; each name is set in its own script
   const langOpts = opts('setLang', [['en', '<span lang="en">English</span>'], ['hi', '<span lang="hi">हिंदी</span>'], ['as', '<span lang="as">অসমীয়া</span>']], currentLang);
 
-  const billLangOptions = [
-    `<option value="app" ${billLangVal === 'app' ? 'selected' : ''}>${t('settingsBillLangApp')}</option>`,
-    `<option value="en" ${billLangVal === 'en' ? 'selected' : ''}>English</option>`,
-    `<option value="hi" ${billLangVal === 'hi' ? 'selected' : ''}>हिंदी</option>`,
-    `<option value="as" ${billLangVal === 'as' ? 'selected' : ''}>অসমীয়া</option>`
-  ].join('');
+  const billLangSelect = select({ id: 'billLang', label: t('settingsBillLanguage'), value: billLangVal, items: [
+    ['app', t('settingsBillLangApp')], ['en', 'English', 'en'], ['hi', 'हिंदी', 'hi'], ['as', 'অসমীয়া', 'as']] });
+  const changes = monthChanges(key);
 
   return `<section class="page set"><h1>${t('settingsTitle')}</h1>
 
@@ -48,12 +47,18 @@ export function render() {
       aria-label="${t('settingsPriceAriaLabel', { month: mn })}" value="${own ? state.monthPrice[key] : ''}" placeholder="${eff || ''}"></div>
     <button class="btn" data-act="saveMonthPrice">${t('savePrice')}</button>
     <p class="hint">${own ? t('settingsPriceUsedFor', { month: mn }) : eff > 0 ? t('settingsPriceNotSet', { month: mn, amount: fmt(eff) }) : t('settingsPriceNone')}</p>
+    ${changes.length ? `<h2 class="sec">${t('settingsPriceChanges', { month: mn })}</h2>
+    <div class="group">${changes.map(([d, v]) => `<div class="row"><span>${t('settingsPriceFrom', { date: shortDate(d) })}</span>
+      <span class="row-end"><b>${fmt(v)}</b><button class="icon-btn" data-act="removePriceChange" data-date="${d}" aria-label="${t('settingsPriceChangeRemove', { date: shortDate(d) })}">×</button></span></div>`).join('')}</div>` : ''}
 
     <h2 class="sec">${t('settingsMilkman')}</h2>
     <label class="field" style="margin-top:0">${t('settingsNameLabel')}<input id="set-name" class="input" value="${esc(state.milkman)}" placeholder="${t('settingsNamePlaceholder')}" data-change="saveName"></label>
     <p class="hint">${t('settingsNameHint')}</p>
-    <label class="field">${t('settingsBillLanguage')}
-      <select class="input" data-change="setBillLang">${billLangOptions}</select></label>
+    <label class="field">${t('settingsPhoneLabel')}<input id="set-phone" class="input" type="tel" inputmode="tel" autocomplete="off" value="${esc(state.milkmanPhone || '')}" placeholder="${t('settingsNamePlaceholder')}" data-change="savePhone"></label>
+    <p class="hint">${t('settingsPhoneHint')}</p>
+    ${billLangSelect}
+    <div class="group" style="margin-top:14px"><div class="row"><div><b>${t('settingsBillLinkLabel')}</b><p class="hint">${t('settingsBillLinkHint')}</p></div>
+      <button class="switch" role="switch" aria-checked="${state.billLink !== false}" aria-label="${t('settingsBillLinkLabel')}" data-act="toggleBillLink"></button></div></div>
 
     <h2 class="sec">${t('settingsPreferences')}</h2>
     <div class="group">
@@ -70,6 +75,7 @@ export function render() {
     </div>
     <input id="restore-file" type="file" accept=".json,application/json" hidden data-change="restoreFile">
     <p class="hint">${t('settingsBackupHint')}</p>
+    <p class="hint">${state.lastBackup ? t('settingsLastBackup', { date: fullDate(state.lastBackup) }) : t('settingsNoBackup')}</p>
 
     <h2 class="sec">${t('settingsHelp')}</h2>
     <div class="group"><button class="rowbtn" data-act="replayGuide"><span>${t('settingsShowGuide')}</span><i>›</i></button></div>
@@ -83,17 +89,18 @@ export function enter() { ui.setDir = 0; }
 function parseBackup(text) {
   let o; try { o = JSON.parse(text); } catch { return null; }
   if (!o || typeof o !== 'object' || !o.monthPrice || typeof o.monthPrice !== 'object' || !o.days || typeof o.days !== 'object') return null;
-  const monthPrice = {}, days = {};
+  const monthPrice = {}, days = {}, priceChanges = {};
   for (const [k, v] of Object.entries(o.monthPrice)) if (/^\d{4}-\d{2}$/.test(k) && v != null && Number.isFinite(+v) && +v >= 0) monthPrice[k] = +v;
+  for (const [k, v] of Object.entries(o.priceChanges || {})) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && v != null && Number.isFinite(+v) && +v >= 0) priceChanges[k] = +v;
   for (const [k, v] of Object.entries(o.days)) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(k) || !v) continue;
     if (v.missed === true) days[k] = { missed: true };
     else if (v.price != null && Number.isFinite(+v.price) && +v.price >= 0) days[k] = { price: +v.price };
   }
   let startMonth = /^\d{4}-\d{2}$/.test(o.startMonth) ? o.startMonth : ym(new Date());
-  const earliest = [...Object.keys(monthPrice), ...Object.keys(days).map(k => k.slice(0, 7))].sort()[0];
+  const earliest = [...Object.keys(monthPrice), ...Object.keys(days).map(k => k.slice(0, 7)), ...Object.keys(priceChanges).map(k => k.slice(0, 7))].sort()[0];
   if (earliest && earliest < startMonth) startMonth = earliest;
-  return { monthPrice, days, trackMissed: o.trackMissed !== false, milkman: typeof o.milkman === 'string' ? o.milkman.slice(0, 60) : '',
+  return { monthPrice, priceChanges, days, trackMissed: o.trackMissed !== false, milkman: typeof o.milkman === 'string' ? o.milkman.slice(0, 60) : '', milkmanPhone: typeof o.milkmanPhone === 'string' ? o.milkmanPhone.slice(0, 20) : '', billLink: o.billLink !== false,
     weekStart: o.weekStart === 1 ? 1 : 0, startMonth };
 }
 
@@ -113,21 +120,22 @@ export const actions = {
     state.monthPrice[monthKey()] = v; save(); haptic(HAPTIC.CONFIRM);
     flash(document.querySelector('[data-act=saveMonthPrice]'), t('flashSaved')).then(refresh); // the drawn checkmark is the confirmation
   },
+  toggleBillLink(el) { state.billLink = state.billLink === false; save(); el.setAttribute('aria-checked', state.billLink); haptic(HAPTIC.SELECT); },
   toggleMissed(el) { state.trackMissed = !state.trackMissed; save(); el.setAttribute('aria-checked', state.trackMissed); haptic(HAPTIC.SELECT); },
   setWeek(el) { state.weekStart = +el.dataset.v; save(); pick(el); },
   replayGuide() { ui.tab = 'home'; refresh(); openGuide(); },
   pickFile() { document.getElementById('restore-file').click(); },
-  backup() {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'hisaab', ...state }, null, 2)], { type: 'application/json' }));
-    a.download = `hisaab-backup-${new Date().toISOString().slice(0, 10)}.json`; a.click(); URL.revokeObjectURL(a.href);
-    haptic(HAPTIC.CONFIRM); toast.success(t('toastBackupDownloaded'));
+  backup: downloadBackup,
+  removePriceChange(el) {
+    const d = el.dataset.date, v = state.priceChanges[d];
+    delete state.priceChanges[d]; save(); haptic(HAPTIC.SELECT); refresh();
+    toast.success(t('toastPriceChangeRemoved'), { action: { label: t('undo'), onClick() { state.priceChanges[d] = v; save(); refresh(); } } });
   },
   askErase() {
     askConfirm({ title: t('confirmEraseTitle'), body: t('confirmEraseBody'),
-      ok: t('confirmEraseOk'), danger: true, run() {
+      ok: t('confirmEraseOk'), danger: true, extra: { label: t('confirmEraseBackupFirst'), run: () => downloadBackup({ quiet: true }) }, run() {
         // CRITICAL: lang/langPicked/billLang are intentionally NOT in this Object.assign — they survive erase.
-        Object.assign(state, { monthPrice: {}, days: {}, trackMissed: true, milkman: '', guideSeen: false, weekStart: 0, startMonth: ym(new Date()) });
+        Object.assign(state, { monthPrice: {}, priceChanges: {}, days: {}, trackMissed: true, milkman: '', milkmanPhone: '', guideSeen: false, weekStart: 0, startMonth: ym(new Date()), lastBackup: null, backupSnooze: null });
         save(); ui.tab = 'home'; ui.settingsMonth = null; ui.lastNum = ui.lastSeg = ui.calLast = undefined; toast.success(t('toastAllDataErased')); setTimeout(openGuide, 260);
       } });
   }
@@ -135,7 +143,12 @@ export const actions = {
 
 export const changes = {
   saveName(el) { state.milkman = el.value.trim(); save(); },
-  setBillLang(el) { state.billLang = el.value; save(); },
+  savePhone(el) {
+    const raw = el.value.trim();
+    if (!raw) { state.milkmanPhone = ''; save(); el.classList.remove('invalid'); return; }
+    if (!waNumber(raw)) { el.classList.add('invalid'); el.setAttribute('aria-invalid', 'true'); haptic(HAPTIC.ERROR); return toast.error(t('toastPhoneInvalid')); }
+    state.milkmanPhone = raw; save(); el.classList.remove('invalid'); el.removeAttribute('aria-invalid');
+  },
   async restoreFile(el) {
     const file = el.files[0]; el.value = '';
     if (!file) return;
@@ -149,3 +162,6 @@ export const changes = {
       run() { haptic(HAPTIC.DOUBLE); Object.assign(state, data, { guideSeen: true }); save(); ui.lastNum = ui.lastSeg = ui.calLast = undefined; toast.success(t('toastBackupRestored')); } });
   }
 };
+
+// The bill language dropdown (js/ui/select.js) reports its pick here.
+document.addEventListener('selectchange', e => { if (e.detail.id === 'billLang') { state.billLang = e.detail.value; save(); } });

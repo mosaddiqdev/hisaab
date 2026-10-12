@@ -1,5 +1,7 @@
-import { state, save } from './store.js';
-import { ui, refresh, openSheet, haptic, HAPTIC, goTab, reduced } from './ui/state.js';
+import { state, save, hooks } from './store.js';
+import { ui, refresh, openSheet, haptic, HAPTIC, goTab, reduced, toast } from './ui/state.js';
+import { setDay, hasOwnPrice } from './logic.js';
+import { ymd, ym } from './utils/date.js';
 import { icons } from './ui/icons.js';
 import { lang, setLang, detectLang, fontReady, t } from './i18n.js';
 import * as home from './ui/home.js';
@@ -7,13 +9,16 @@ import * as calendar from './ui/calendar.js';
 import * as settings from './ui/settings.js';
 import * as sheet from './ui/sheet.js';
 import * as guide from './ui/guide.js';
+import * as select from './ui/select.js';
+
+select.initSelect();
 
 const TABS = [['home', home], ['calendar', calendar], ['settings', settings]];
 const view = document.getElementById('view'), tabs = document.getElementById('tabs'), overlay = document.getElementById('overlay-root');
 
 // One name, one handler: a duplicate would silently replace another screen's action.
 const actions = {};
-for (const group of [home.actions, calendar.actions, settings.actions, sheet.actions, guide.actions, { tab: el => goTab(el.dataset.tab) }]) {
+for (const group of [home.actions, calendar.actions, settings.actions, sheet.actions, guide.actions, select.actions, { tab: el => goTab(el.dataset.tab) }]) {
   for (const name of Object.keys(group)) {
     if (actions[name]) throw new Error(`Duplicate action name: ${name}`);
     actions[name] = group[name];
@@ -154,5 +159,46 @@ fonts.catch(() => {}).then(() => {
   html.classList.remove('booting');
   if (!reduced()) { html.classList.add('boot'); setTimeout(() => html.classList.remove('boot'), 1100); }
   if (!state.guideSeen) guide.mount();
+  launchAction();
 });
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+
+// ---- Data safety
+// A failed save (storage full or blocked) must never be silent. Shown at most once every 30 seconds.
+let lastSaveWarn = 0;
+hooks.onSaveError = () => { if (Date.now() - lastSaveWarn > 30000) { lastSaveWarn = Date.now(); toast.error(t('toastSaveFailed')); } };
+// Ask the browser to keep this data when the phone is low on space (installed apps usually get a quiet yes).
+try { navigator.storage?.persist?.(); } catch {}
+
+// The app can stay open past midnight: when the date changes (or the app comes back to the front), redraw so "today" is today.
+let shownDay = ymd(new Date());
+function checkDay() {
+  if (ymd(new Date()) === shownDay || document.activeElement?.matches?.('input')) return; // do not redraw under someone typing
+  shownDay = ymd(new Date()); ui.cursor = new Date(); refresh();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkDay(); navigator.serviceWorker?.getRegistration().then(r => r?.update()); } });
+setInterval(checkDay, 60000);
+
+// A new version arrives in the background: offer to reload instead of waiting for the next launch.
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) toast(t('toastUpdateReady'), { duration: 12000, action: { label: t('reload'), onClick: () => location.reload() } });
+  });
+}
+
+// ---- Home-screen shortcuts: ./?action=missed | came  and  ./?tab=calendar
+function launchAction() {
+  const q = new URLSearchParams(location.search), action = q.get('action'), tab = q.get('tab');
+  if (!action && !tab) return;
+  history.replaceState(null, '', location.pathname);
+  if (!state.guideSeen) return; // first run: nothing to mark yet
+  if (tab === 'calendar') return goTab('calendar');
+  const now = new Date(), k = ymd(now);
+  if (!hasOwnPrice(ym(now)) || !['missed', 'came'].includes(action) || (action === 'missed' && !state.trackMissed)) return;
+  const before = state.days[k] ? { ...state.days[k] } : null;
+  setDay(k, action === 'missed' ? { missed: true } : null); save();
+  ui.tab = 'home'; ui.changed = k; refresh();
+  const msg = action === 'missed' ? t('toastShortcutNoMilk') : t('toastShortcutCame');
+  toast.success(msg, { action: { label: t('undo'), onClick() { setDay(k, before); save(); refresh(); } } });
+}

@@ -83,9 +83,9 @@ export const hi = {
   legendNoMilk: 'दूध नहीं',
 
   // ── Bill text (shared via share / clipboard) ──────────────────────────────
-  billTitle: '{appName} · {month} {year}',
-  billTitleSoFar: '{appName} · {month} {year} (अब तक)',
-  billMilkman: 'दूधवाला: {name}',
+  billTitle: 'दूध का बिल',
+  billPeriod: '{month} {year} ({range})',
+  billShare: 'रोज़ का दूध का हिसाब रखें, मुफ़्त:',
   billPrice: 'दाम: {amount} प्रतिदिन',
   billDelivered: 'दूध आने के दिन: {days}',
   billNoMilk_one: 'दूध नहीं आया: {n} दिन ({dates} {mon})',
@@ -213,6 +213,40 @@ export const hi = {
   dowShort: [
     'रवि', 'सोम', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि'
   ],
+
+  // ── Data safety ───────────────────────────────────────────────────────────
+  toastSaveFailed: 'सेव नहीं हो सका। फ़ोन की स्टोरेज भरी या बंद हो सकती है।',
+  toastUpdateReady: 'नया वर्शन तैयार है',
+  reload: 'रीलोड करें',
+  backupNudgeTitle: 'अपना डेटा बैकअप करें',
+  backupNudgeNever: 'सब कुछ सिर्फ़ इसी फ़ोन में सेव है। बैकअप डाउनलोड कर लें ताकि कुछ खोए नहीं।',
+  backupNudgeOld: 'आपका पिछला बैकअप {days} दिन पहले का है।',
+  backupNow: 'अभी बैकअप लें',
+  later: 'बाद में',
+  confirmEraseBackupFirst: 'पहले बैकअप डाउनलोड करें',
+  settingsLastBackup: 'पिछला बैकअप: {date}',
+  settingsNoBackup: 'अभी तक कोई बैकअप नहीं।',
+
+  // ── Price change from a date ──────────────────────────────────────────────
+  sheetPriceFromHere: 'इस दिन से यही दाम रखें',
+  toastPriceFrom: '{date} से {amount} प्रतिदिन',
+  toastPriceChangeRemoved: 'दाम का बदलाव हटा दिया गया',
+  settingsPriceChanges: '{month} में दाम के बदलाव',
+  settingsPriceFrom: '{date} से',
+  settingsPriceChangeRemove: '{date} से दाम का बदलाव हटाएं',
+  billPriceFrom: '{date} से: {amount} प्रतिदिन',
+
+  // ── Milkman phone / WhatsApp ──────────────────────────────────────────────
+  settingsPhoneLabel: 'दूधवाले का फ़ोन नंबर',
+  settingsPhoneHint: 'इससे आप बिल WhatsApp पर भेज सकते हैं।',
+  settingsBillLinkLabel: 'बिल में ऐप का लिंक जोड़ें',
+  settingsBillLinkHint: 'अंत में छोटा-सा न्योता और लिंक जुड़ेगा। WhatsApp उसे प्रीव्यू कार्ड में दिखाएगा।',
+  toastPhoneInvalid: 'सही फ़ोन नंबर डालें',
+  calWhatsApp: 'WhatsApp पर भेजें',
+
+  // ── Home-screen shortcuts ─────────────────────────────────────────────────
+  toastShortcutNoMilk: 'आज के लिए दूध नहीं आया दर्ज हुआ',
+  toastShortcutCame: 'आज दूध आया दर्ज हुआ',
 
   // ── Saved flash confirmation ───────────────────────────────────────────────
   flashSaved: 'सेव हो गया',

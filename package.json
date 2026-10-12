@@ -1,8 +1,10 @@
 {
   "type": "module",
   "private": true,
-  "description": "Validation scripts for Hisaab i18n. Not a build system — the app has no build step.",
+  "description": "Validation scripts for Hisaab (i18n, price logic) and the link-preview image build. Not a build system \u2014 the app has no build step.",
   "scripts": {
-    "check-i18n": "node scripts/check-i18n.js"
+    "check-i18n": "node scripts/check-i18n.js",
+    "test": "node scripts/test-logic.mjs && node scripts/check-i18n.js",
+    "og": "node scripts/build-og.mjs"
   }
 }

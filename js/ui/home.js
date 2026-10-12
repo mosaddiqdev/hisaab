@@ -5,6 +5,7 @@ import { ymd, ym, monthName, dayLabel, daysInMonth, dowShort } from '../utils/da
 import { fmt, num, normalizeDigits } from '../utils/format.js';
 import { t, nPlural, arr } from '../i18n.js';
 import { digits, animateRoll } from './roll.js';
+import { backupDue, snoozeBackup, daysSince, downloadBackup } from './backup.js';
 
 const KINDS = ['normal', 'missed', 'special'];
 
@@ -38,7 +39,7 @@ export function render() {
   const oldAmt = document.querySelector('.today-amt');
   const amtFlip = oldAmt && ui.changed === ymd(now) && oldAmt.textContent !== amtText;
   const oldAmtKind = amtFlip ? KINDS.find(c => oldAmt.classList.contains(c)) || '' : '';
-  const estimate = sum.total + (n - d) * price;
+  const estimate = monthSummary(y, m, new Date(y, m + 1, 0)).total; // the whole month: later days at their own price, planned specials and no-milk days included
   const specialBit = sum.special ? nPlural('specialDays', sum.special) : '';
   const missedBit = state.trackMissed && sum.missed ? nPlural('missedDays', sum.missed) : '';
   const bits = [specialBit, missedBit].filter(Boolean);
@@ -53,7 +54,10 @@ export function render() {
         <button class="btn" data-act="savePrice">${price > 0 ? t('save') : t('savePrice')}</button></div></section>`;
   }
   const total = num(sum.total);
-  return `<section class="page home">${header}
+  const nudge = backupDue() ? `<div class="nudge" role="note"><div><b>${t('backupNudgeTitle')}</b>
+      <p class="hint">${state.lastBackup ? t('backupNudgeOld', { days: daysSince(state.lastBackup) }) : t('backupNudgeNever')}</p></div>
+      <div class="nudge-act"><button class="btn" data-act="backupNow">${t('backupNow')}</button><button class="link" data-act="backupLater">${t('later')}</button></div></div>` : '';
+  return `<section class="page home">${header}${nudge}
     <div class="hero"><p class="eyebrow">${t('spentInMonth', { month: monthName(m) })}</p>
       <p class="amount ${String(Math.round(sum.total)).length > 4 ? 'sm' : ''}" role="img" aria-label="${fmt(sum.total)}"><span class="cur" aria-hidden="true">₹</span><span class="num" aria-hidden="true" data-str="${total}">${digits(total, ui.rollFromZero ? total.replace(/\d/g, '0') : ui.lastNum)}</span></p>
       <p class="sub">${t('estimatedByMonthEnd', { amount: fmt(estimate) })}</p>
@@ -81,7 +85,9 @@ export const actions = {
   // The pill slides, the amount fades in, the total rolls and the day circle pops: that is the confirmation, so no toast.
   came() { ui.changed = ymd(new Date()); setDay(ymd(new Date()), null); save(); haptic(HAPTIC.SELECT); refresh(); },
   missed() { ui.changed = ymd(new Date()); setDay(ymd(new Date()), { missed: true }); save(); haptic(HAPTIC.SELECT); refresh(); },
-  other() { openSheet(ymd(new Date())); }
+  other() { openSheet(ymd(new Date())); },
+  backupNow() { downloadBackup(); refresh(); },
+  backupLater() { snoozeBackup(); haptic(HAPTIC.SELECT); refresh(); }
 };
 
 // Runs after the home view is drawn: slides the pill and rolls the changed digits.

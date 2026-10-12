@@ -17,3 +17,6 @@
 /* each language name in its own script's font, whatever the app language is */
 .opts span[lang=hi]{font-family:"Hind","Noto Sans Devanagari",sans-serif}
 .opts span[lang=as]{font-family:"Hind Siliguri","Noto Sans Bengali",sans-serif}
+.row-end{display:flex;align-items:center;gap:10px}
+.row-end b{font-variant-numeric:tabular-nums}
+.row-end .icon-btn{width:36px;height:36px;color:var(--muted-fg)}

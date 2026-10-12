@@ -7,6 +7,7 @@
 // and goes away by timeout, tap, swipe, Escape, or its close button.
 import { reduced } from './env.js';
 import { icons } from './icons.js';
+import { t } from '../i18n.js';
 
 const ICON = { success: icons.check, error: icons.alert, info: icons.info };
 let current = null;
@@ -33,7 +34,7 @@ export function toast(message, { type = 'info', action = null, duration } = {}) 
   el.style.setProperty('--dur', `${ms}ms`);
   el.innerHTML = `<span class="t-icon">${ICON[type] || ICON.info}</span><span class="t-msg"></span>`
     + (action ? '<button class="t-act" type="button"></button>' : '')
-    + (action || type === 'error' ? `<button class="t-x" type="button" aria-label="Dismiss">${icons.close}</button>` : '')
+    + (action || type === 'error' ? `<button class="t-x" type="button" aria-label="${t('dismiss')}">${icons.close}</button>` : '')
     + (action ? '<i class="t-bar" aria-hidden="true"></i>' : '');
   el.querySelector('.t-msg').textContent = message;
   if (action) el.querySelector('.t-act').textContent = action.label;

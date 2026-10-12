@@ -84,9 +84,9 @@ export const assamese = {
   legendNoMilk: 'গাখীৰ নাই',
 
   // ── Bill text (shared via share / clipboard) ──────────────────────────────
-  billTitle: '{appName} · {month} {year}',
-  billTitleSoFar: '{appName} · {month} {year} (এতিয়ালৈকে)',
-  billMilkman: 'গাখীৰৱালা: {name}',   // ৱ U+09F1
+  billTitle: 'গাখীৰৰ বিল',
+  billPeriod: '{month} {year} ({range})',
+  billShare: 'দৈনিক গাখীৰৰ হিচাপ ৰাখক, বিনামূলীয়া:',
   billPrice: 'দাম: প্ৰতিদিন {amount}',
   billDelivered: 'ডেলিভাৰি: {days} দিন',    // ৰ U+09F0
   billNoMilk_one: 'গাখীৰ নাহিল: {n} দিন ({dates} {mon})',
@@ -214,6 +214,40 @@ export const assamese = {
   dowShort: [
     'দেও', 'সোম', 'মঙ্গ', 'বুধ', 'বৃহ', 'শুক্ৰ', 'শনি'   // ৰ U+09F0 in শুক্ৰ
   ],
+
+  // ── Data safety ───────────────────────────────────────────────────────────
+  toastSaveFailed: "ছেভ কৰিব নোৱাৰিলে। ফোনৰ ষ্টোৰেজ ভৰ্তি বা বন্ধ হ'ব পাৰে।",
+  toastUpdateReady: 'নতুন সংস্কৰণ সাজু',
+  reload: 'ৰিলোড কৰক',
+  backupNudgeTitle: 'আপোনাৰ ডেটাৰ বেকআপ লওক',
+  backupNudgeNever: 'সকলোবোৰ কেৱল এই ফোনতহে ছেভ আছে। বেকআপ ডাউনলোড কৰি থওক যাতে একো হেৰাই নাযায়।',
+  backupNudgeOld: 'আপোনাৰ শেষ বেকআপ {days} দিন আগৰ।',
+  backupNow: 'এতিয়াই বেকআপ লওক',
+  later: 'পিছত',
+  confirmEraseBackupFirst: 'প্ৰথমে বেকআপ ডাউনলোড কৰক',
+  settingsLastBackup: 'শেষ বেকআপ: {date}',
+  settingsNoBackup: 'এতিয়ালৈকে কোনো বেকআপ নাই।',
+
+  // ── Price change from a date ──────────────────────────────────────────────
+  sheetPriceFromHere: 'এই দিনৰ পৰা এই দামেই ৰাখক',
+  toastPriceFrom: '{date}ৰ পৰা প্ৰতিদিন {amount}',
+  toastPriceChangeRemoved: "দামৰ সলনি আঁতৰোৱা হ'ল",
+  settingsPriceChanges: '{month}ত দামৰ সলনি',
+  settingsPriceFrom: '{date}ৰ পৰা',
+  settingsPriceChangeRemove: '{date}ৰ পৰা দামৰ সলনি আঁতৰাওক',
+  billPriceFrom: '{date}ৰ পৰা: প্ৰতিদিন {amount}',
+
+  // ── Milkman phone / WhatsApp ──────────────────────────────────────────────
+  settingsPhoneLabel: 'গাখীৰৱালাৰ ফোন নম্বৰ',
+  settingsPhoneHint: 'ইয়াৰ দ্বাৰা বিল WhatsApp ত পঠিয়াব পাৰিব।',
+  settingsBillLinkLabel: 'বিলত এপৰ লিংক যোগ কৰক',
+  settingsBillLinkHint: 'শেষত এটা চমুকৈ আমন্ত্ৰণ আৰু লিংক যোগ হ\'ব। WhatsApp এ ইয়াক প্ৰিভিউ কাৰ্ডত দেখুৱাব।',
+  toastPhoneInvalid: 'শুদ্ধ ফোন নম্বৰ দিয়ক',
+  calWhatsApp: 'WhatsApp ত পঠাওক',
+
+  // ── Home-screen shortcuts ─────────────────────────────────────────────────
+  toastShortcutNoMilk: 'আজিৰ বাবে গাখীৰ নাহিল বুলি সংৰক্ষিত',
+  toastShortcutCame: 'আজি গাখীৰ আহিল বুলি সংৰক্ষিত',
 
   // ── Saved flash confirmation ───────────────────────────────────────────────
   flashSaved: 'ছেভ হ\'ল',

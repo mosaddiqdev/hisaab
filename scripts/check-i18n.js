@@ -239,6 +239,8 @@ const UI_FILES = [
   join(ROOT, 'js', 'ui', 'sheet.js'),
   join(ROOT, 'js', 'ui', 'guide.js'),
   join(ROOT, 'js', 'ui', 'toast.js'),
+  join(ROOT, 'js', 'ui', 'backup.js'),
+  join(ROOT, 'js', 'ui', 'select.js'),
   join(ROOT, 'js', 'ui', 'state.js'),
   join(ROOT, 'js', 'ui', 'env.js'),
 ];
@@ -284,6 +286,7 @@ const KNOWN_IMPLICIT = new Set([
   'back', 'today', 'dismiss', 'ariaSkip', 'calEditPriceBtn',
   // confirmCancel is used in confirmHtml() via t('cancel') (same label, but key kept for future)
   'confirmCancel',
+  
 ]);
 
 let unusedCount = 0;
